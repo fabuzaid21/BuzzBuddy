@@ -24,7 +24,7 @@ public class AppAdapter extends ArrayAdapter<PackageInfo> {
 		this.context = context;
 		this.list = list;
 	}
-
+	
 	private static class ViewHolder {
 		protected ImageView icon;
 		protected TextView appName;
