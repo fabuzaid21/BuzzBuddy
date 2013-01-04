@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">NotificationBuzzer</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="menu_settings">Settings</string>
+    <string name="title_activity_notification_buzzer">NotificationBuzzerActivity</string>
+    <string name="service_description">Change the vibration pattern for your various notifications</string>
+
+</resources>
