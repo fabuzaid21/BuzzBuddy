@@ -3,6 +3,7 @@ package com.notificationbuzzer.fabuzaid21;
 import java.util.List;
 
 import android.accessibilityservice.AccessibilityService;
+import android.app.Notification;
 import android.content.Context;
 import android.os.Vibrator;
 import android.util.Log;
@@ -24,6 +25,7 @@ public class NotificationDetectorService extends AccessibilityService {
 			for (CharSequence str : list) {
 				Log.d(TAG, String.valueOf(str));
 			}
+			// TODO change this to vibrate to the actual pattern
 			vibrator.vibrate(1000);
 		}
 	}

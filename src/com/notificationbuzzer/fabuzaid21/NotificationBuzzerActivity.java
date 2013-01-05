@@ -6,6 +6,7 @@ import java.util.List;
 
 import android.accessibilityservice.AccessibilityServiceInfo;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.ListActivity;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -24,13 +25,17 @@ import android.view.View;
 import android.view.accessibility.AccessibilityManager;
 import android.widget.ArrayAdapter;
 import android.widget.CursorAdapter;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class NotificationBuzzerActivity extends ListActivity {
+public class NotificationBuzzerActivity extends ListActivity implements OnItemClickListener {
 
+	private static final String NOTIFICATION_BUZZER_PACKAGE = NotificationBuzzerActivity.class.getPackage().getName();
 	private BuzzDB base;
 	ArrayList<ResolveInfo> vibratedApps;
+	private Dialog vibrationPatternDialog;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -69,8 +74,23 @@ public class NotificationBuzzerActivity extends ListActivity {
 
 		list.setAdapter(adapter);
 
+		list.setOnItemClickListener(this);
+
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
 		//open accessibility menu
 		checkAccessibility();
+	}
+
+	@Override
+	protected void onStop() {
+		super.onStop();
+		if (vibrationPatternDialog.isShowing()) {
+			vibrationPatternDialog.dismiss();
+		}
 	}
 
 	private ArrayList<ResolveInfo> getVibratedApps(List<ResolveInfo> launcherApps, PackageManager pm) {
@@ -80,16 +100,14 @@ public class NotificationBuzzerActivity extends ListActivity {
 		ArrayList<ResolveInfo> usedApps=new ArrayList<ResolveInfo>();
 
 		ArrayList<String> appNames=new ArrayList<String>();
-		for(int x=0;x<launcherApps.size();x++)
-		appNames.add(launcherApps.get(x).activityInfo.applicationInfo.packageName);
+		for (int x = 0; x < launcherApps.size(); x++)
+                  appNames.add(launcherApps.get(x).activityInfo.applicationInfo.packageName);
 
 		Cursor baseApps=base.queryAll(BuzzDB.DATABASE_APP_TABLE);
 		baseApps.moveToFirst();
-		while(!baseApps.isAfterLast())
-		{
+		while(!baseApps.isAfterLast()) {
 			String name=baseApps.getString(BuzzDB.APP_INDEX_NAME);
-			if(appNames.contains(name))
-			{
+			if (appNames.contains(name)) {
 				int index=appNames.indexOf(name);
 				ResolveInfo item=launcherApps.get(index);
 				usedApps.add(item);
@@ -100,10 +118,8 @@ public class NotificationBuzzerActivity extends ListActivity {
 			baseApps.moveToNext();
 		}
 
-		for(int x=0;x<launcherApps.size();x++)
-		{
-			if(launcherApps.get(x)==null)
-			{
+		for (int x = 0; x < launcherApps.size(); x++) {
+			if (launcherApps.get(x) == null) {
 				launcherApps.remove(x);
 				x--;
 			}
@@ -118,19 +134,19 @@ public class NotificationBuzzerActivity extends ListActivity {
 		for (final ResolveInfo info : allApps) {
 			if ((info.activityInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) == 0 ||
 					info.activityInfo.applicationInfo.packageName.matches("com.android.(mms|contacts|calendar|email)")) {
+
+				if (info.activityInfo.applicationInfo.packageName.equals(NOTIFICATION_BUZZER_PACKAGE)) continue;
 				notificationApps.add(info);
 			}
 		}
 		return notificationApps;
 	}
 
-	public void onDestroy()
-	{
+	@Override
+	public void onDestroy() {
 		base.close();
 		super.onDestroy();
 	}
-
-
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -139,54 +155,57 @@ public class NotificationBuzzerActivity extends ListActivity {
 		return true;
 	}
 
-	public String getApplicationName(PackageInfo info)
-	{
-		return info.applicationInfo.packageName;
+	public String getApplicationName(PackageInfo info) {
+		return info.applicationInfo.processName;
 	}
 
-	public void checkAccessibility()
-	{
+	public void checkAccessibility() {
 		AccessibilityManager accMan =
 			(AccessibilityManager) getSystemService(Context.ACCESSIBILITY_SERVICE);
 
-		List<AccessibilityServiceInfo> validList=accMan.getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_HAPTIC);
+		List<AccessibilityServiceInfo> validList = accMan.getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_HAPTIC);
 
-		for(int x=0;x<validList.size();x++)
-		{
-			String[]packageNames=validList.get(x).packageNames;
+		for (int x = 0; x < validList.size(); x++) {
+			String[] packageNames = validList.get(x).packageNames;
 
-			for(int y=0;y<packageNames.length;y++)
-			{
-				if(packageNames[y].equals("com.notificationbuzzer.fabuzaid21"))
+			for (int y = 0; y < packageNames.length; y++) {
+				if (packageNames[y].equals("com.notificationbuzzer.fabuzaid21"))
 					return;
 			}
 		}
 
-			AlertDialog.Builder alert = new AlertDialog.Builder(this);
+                AlertDialog.Builder alert = new AlertDialog.Builder(this);
 
-			alert.setTitle("Accessability Settings");
-			alert.setMessage("You need to activate accessability settings to use Notification Buzzer. Continue?");
+                alert.setTitle("Accessability Settings");
+                alert.setMessage("You need to activate accessability settings to use Notification Buzzer. Continue?");
 
-			alert.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-				public void onClick(DialogInterface dialog, int whichButton) {
-					enableAccessabilitySettings();
-				}
-			});
+                alert.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                                enableAccessabilitySettings();
+                        }
+                });
 
-			alert.setNegativeButton("No", new DialogInterface.OnClickListener() {
-				public void onClick(DialogInterface dialog, int whichButton) {
-					// Canceled.
-				}
-			});
+                alert.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                                // Canceled.
+                        }
+                });
 
-			alert.show();
-
-
+                alert.show();
 	}
 
 	protected void enableAccessabilitySettings() {
 		Intent settingsIntent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
 		startActivity(settingsIntent);
+	}
+
+	@Override
+	public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+		if (vibrationPatternDialog == null) {
+			vibrationPatternDialog = new Dialog(this, R.style.VibrationPatternDialogStyle);
+			vibrationPatternDialog.setContentView(R.layout.vibration_pattern);
+		}
+		vibrationPatternDialog.show();
 
 	}
 
