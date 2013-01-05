@@ -6,6 +6,6 @@
     <string name="menu_settings">Settings</string>
     <string name="title_activity_notification_buzzer">NotificationBuzzer</string>
     <string name="service_description">Change the vibration pattern for your various notifications</string>
-    <string name="vibration_pattern_explanation">Record the vibration pattern for this particular app. Tap the record button to begin.</string>
+    <string name="vibration_pattern_explanation">Tap the record button to begin recording your vibration pattern.</string>
 
 </resources>

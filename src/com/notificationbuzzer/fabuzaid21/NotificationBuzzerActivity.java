@@ -206,8 +206,7 @@ public class NotificationBuzzerActivity extends ListActivity implements OnItemCl
 	@Override
 	public void onItemClick(final AdapterView<?> arg0, final View arg1, final int arg2, final long arg3) {
 		if (vibrationPatternDialog == null) {
-			vibrationPatternDialog = new Dialog(this, R.style.VibrationPatternDialogStyle);
-			vibrationPatternDialog.setContentView(R.layout.vibration_pattern);
+			vibrationPatternDialog = new VibrationPatternDialog(this, R.style.VibrationPatternDialogStyle);
 		}
 		vibrationPatternDialog.show();
 
