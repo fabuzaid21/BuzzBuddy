@@ -4,8 +4,7 @@ import java.util.List;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.pm.ResolveInfo;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,17 +13,17 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 
-public class AppAdapter extends ArrayAdapter<PackageInfo> {
+public class AppAdapter extends ArrayAdapter<ResolveInfo> {
 
-	private List<PackageInfo> list;
+	private List<ResolveInfo> list;
 	private final Context context;
 
-	public AppAdapter(final Context context, final List<PackageInfo> list) {
+	public AppAdapter(final Context context, final List<ResolveInfo> list) {
 		super(context, R.layout.app_row, list);
 		this.context = context;
 		this.list = list;
 	}
-	
+
 	private static class ViewHolder {
 		protected ImageView icon;
 		protected TextView appName;
@@ -46,14 +45,9 @@ public class AppAdapter extends ArrayAdapter<PackageInfo> {
 		}
 
 		final ViewHolder holder = (ViewHolder) view.getTag();
-		final PackageInfo item = list.get(position);
-		try {
-			holder.icon.setImageDrawable(context.getPackageManager().getApplicationIcon(item.packageName));
-		} catch (NameNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		holder.appName.setText(context.getPackageManager().getApplicationLabel(item.applicationInfo));
+		final ResolveInfo item = list.get(position);
+		holder.icon.setImageDrawable(item.loadIcon(context.getPackageManager()));
+		holder.appName.setText(item.loadLabel(context.getPackageManager()));
 
 		return view;
 	}
