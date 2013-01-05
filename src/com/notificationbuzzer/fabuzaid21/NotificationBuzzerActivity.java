@@ -44,29 +44,29 @@ public class NotificationBuzzerActivity extends ListActivity {
 		base = new BuzzDB(this);
 		base.open();
 
-		
-				
+
+
 		final ListView list = getListView();
 		final PackageManager pm = getPackageManager();
-						
-		
+
+
 		final Intent intent = new Intent(Intent.ACTION_MAIN, null);
 		intent.addCategory(Intent.CATEGORY_LAUNCHER);
 		final List<ResolveInfo> launcherApps = pm.queryIntentActivities(intent, PackageManager.PERMISSION_GRANTED);
 		for (ResolveInfo rInfo : launcherApps) {
 			Log.w("Installed Applications", rInfo.loadLabel(pm).toString());
 		}
-		
+
 		vibratedApps=getVibratedApps(launcherApps, pm);
-		
+
 		SectionAdapter adapter=new SectionAdapter(this.getApplicationContext());
-		
+
 		final AppAdapter unusedApps = new AppAdapter(this, filterSystemApps(launcherApps));
 		final AppAdapter usedApps= new AppAdapter(this, vibratedApps);
-		
+
 		adapter.addSection("Add a pattern", unusedApps);
 		adapter.addSection("Review a pattern", usedApps);
-		
+
 		list.setAdapter(adapter);
 
 		//open accessibility menu
@@ -74,15 +74,15 @@ public class NotificationBuzzerActivity extends ListActivity {
 	}
 
 	private ArrayList<ResolveInfo> getVibratedApps(List<ResolveInfo> launcherApps, PackageManager pm) {
-		
+
 		//We have the list of all apps, we want two lists. One with used apps, one with unused apps.
-		
+
 		ArrayList<ResolveInfo> usedApps=new ArrayList<ResolveInfo>();
-		
-		ArrayList<String> appNames=new ArrayList<String>();		
+
+		ArrayList<String> appNames=new ArrayList<String>();
 		for(int x=0;x<launcherApps.size();x++)
 		appNames.add(launcherApps.get(x).activityInfo.applicationInfo.packageName);
-				
+
 		Cursor baseApps=base.queryAll(BuzzDB.DATABASE_APP_TABLE);
 		baseApps.moveToFirst();
 		while(!baseApps.isAfterLast())
@@ -96,10 +96,10 @@ public class NotificationBuzzerActivity extends ListActivity {
 				appNames.set(index, "");
 				launcherApps.set(index, null);
 			}
-			
+
 			baseApps.moveToNext();
 		}
-		
+
 		for(int x=0;x<launcherApps.size();x++)
 		{
 			if(launcherApps.get(x)==null)
@@ -108,9 +108,9 @@ public class NotificationBuzzerActivity extends ListActivity {
 				x--;
 			}
 		}
-				
+
 		return usedApps;
-		
+
 	}
 
 	private static List<ResolveInfo> filterSystemApps(final List<ResolveInfo> allApps) {
@@ -130,7 +130,7 @@ public class NotificationBuzzerActivity extends ListActivity {
 		super.onDestroy();
 	}
 
-	
+
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -148,20 +148,20 @@ public class NotificationBuzzerActivity extends ListActivity {
 	{
 		AccessibilityManager accMan =
 			(AccessibilityManager) getSystemService(Context.ACCESSIBILITY_SERVICE);
-		
+
 		List<AccessibilityServiceInfo> validList=accMan.getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_HAPTIC);
-		
+
 		for(int x=0;x<validList.size();x++)
 		{
 			String[]packageNames=validList.get(x).packageNames;
-			
+
 			for(int y=0;y<packageNames.length;y++)
 			{
 				if(packageNames[y].equals("com.notificationbuzzer.fabuzaid21"))
 					return;
 			}
 		}
-		
+
 			AlertDialog.Builder alert = new AlertDialog.Builder(this);
 
 			alert.setTitle("Accessability Settings");
@@ -181,7 +181,7 @@ public class NotificationBuzzerActivity extends ListActivity {
 
 			alert.show();
 
-		
+
 	}
 
 	protected void enableAccessabilitySettings() {
