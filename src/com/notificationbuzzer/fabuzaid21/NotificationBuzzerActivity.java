@@ -67,6 +67,11 @@ public class NotificationBuzzerActivity extends ListActivity {
 		getMenuInflater().inflate(R.menu.activity_notification_buzzer, menu);
 		return true;
 	}
+	
+	public String getApplicationName(PackageInfo info)
+	{
+		return info.applicationInfo.processName;
+	}
 
 	public void checkAccessibility()
 	{
