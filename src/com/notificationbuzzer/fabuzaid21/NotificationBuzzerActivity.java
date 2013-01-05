@@ -54,11 +54,12 @@ public class NotificationBuzzerActivity extends ListActivity implements OnItemCl
 		intent.addCategory(Intent.CATEGORY_LAUNCHER);
 		final List<ResolveInfo> launcherApps = pm.queryIntentActivities(intent, PackageManager.PERMISSION_GRANTED);
 
-		vibratedApps = getVibratedApps(launcherApps, pm);
+		
 
 		final SectionAdapter adapter = new SectionAdapter(this.getApplicationContext());
 
 		final AppAdapter unusedApps = new AppAdapter(this, filterSystemApps(launcherApps));
+		vibratedApps = getVibratedApps(launcherApps, pm);
 		final AppAdapter usedApps = new AppAdapter(this, vibratedApps);
 
 		adapter.addSection("Add a pattern", unusedApps);
