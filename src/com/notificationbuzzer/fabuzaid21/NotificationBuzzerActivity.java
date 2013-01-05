@@ -3,22 +3,18 @@ package com.notificationbuzzer.fabuzaid21;
 import java.util.ArrayList;
 import java.util.List;
 
-<<<<<<< HEAD
-
 import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-<<<<<<< HEAD
+import android.content.pm.ResolveInfo;
 import android.database.Cursor;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.content.pm.ResolveInfo;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.accessibility.AccessibilityManager;
