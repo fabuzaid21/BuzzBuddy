@@ -11,29 +11,29 @@ public class BuzzDB {
 
 	// a bunch of static strings for table names, column names, and column
 	// indexes.
-	public static final int DATABASE_VERSION = 1;
-	public static final String DATABASE_NAME = "buzzdb";
-	public static final String DATABASE_APP_TABLE = "apptable";
+	private static final int DATABASE_VERSION = 1;
+	private static final String DATABASE_NAME = "buzzdb";
+	static final String DATABASE_APP_TABLE = "apptable";
 
-	public static final String APP_NAME = "APP";
-	public static final String VIBRATION = "VIBRATION";
+	private static final String APP_NAME = "APP";
+	private static final String VIBRATION = "VIBRATION";
 
-	public static final String KEY_ROW_ID = "_id";// Android requires exactly
+	private static final String KEY_ROW_ID = "_id";// Android requires exactly
 	// this key name
-	public static final int INDEX_ROW_ID = 0;
+	private static final int INDEX_ROW_ID = 0;
 
 	// Field names -- use the KEY_XXX constants here and in
 	// client code, so it's all consistent and checked at compile-time.
 
-	public static final String APP_KEY_NAME = "name";
-	public static final int APP_INDEX_NAME = 1;
-	public static final String APP_KEY_VIBRATION = "active";
-	public static final int APP_INDEX_VIBRATION = 2;
+	static final String APP_KEY_NAME = "name";
+	static final int APP_INDEX_NAME = 0;
+	static final String APP_KEY_VIBRATION = "active";
+	static final int APP_INDEX_VIBRATION = 1;
 
-	public static final String[] APP_KEYS_ALL = { APP_KEY_NAME, APP_KEY_VIBRATION };
+	static final String[] APP_KEYS_ALL = { APP_KEY_NAME, APP_KEY_VIBRATION };
 
 	private final Context context;
-	protected SQLiteDatabase database;// is this secure?
+	private SQLiteDatabase database;
 	private BuzzDBHelper helper;
 
 	/** Construct DB for this activity context. */

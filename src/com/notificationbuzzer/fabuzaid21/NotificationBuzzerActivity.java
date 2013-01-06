@@ -1,11 +1,14 @@
 package com.notificationbuzzer.fabuzaid21;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import android.accessibilityservice.AccessibilityServiceInfo;
 import android.app.AlertDialog;
 import android.app.ListActivity;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
@@ -34,11 +37,12 @@ public class NotificationBuzzerActivity extends ListActivity implements OnItemCl
 	private static final String TAG = ACTIVITY_NAME;
 
 	private BuzzDB base;
-	private List<ResolveInfo> vibratedApps;
 	private VibrationPatternDialog vibrationPatternDialog;
 	private VibrationPattern vibrationPattern;
-	private Long[] finalPattern;
 	private boolean isCanceled;
+	private int listPosition;
+	private List<ResolveInfo> unassignedApps;
+	private List<ResolveInfo> assignedApps;
 
 	@Override
 	protected void onCreate(final Bundle savedInstanceState) {
@@ -51,7 +55,8 @@ public class NotificationBuzzerActivity extends ListActivity implements OnItemCl
 
 		// open the database to find apps that have a vibration associated with
 		// them already.
-		base = new BuzzDB(this);
+
+		base = ((NotificationBuzzerApp) getApplication()).getDatabase();
 		base.open();
 
 		final ListView list = getListView();
@@ -60,20 +65,21 @@ public class NotificationBuzzerActivity extends ListActivity implements OnItemCl
 		final Intent intent = new Intent(Intent.ACTION_MAIN, null);
 		intent.addCategory(Intent.CATEGORY_LAUNCHER);
 		final List<ResolveInfo> launcherApps = pm.queryIntentActivities(intent, PackageManager.PERMISSION_GRANTED);
+		final List<ResolveInfo> candidateApps = filterSystemApps(launcherApps);
+
+		unassignedApps = new ArrayList<ResolveInfo>();
+		assignedApps = new ArrayList<ResolveInfo>();
+		sortAppAssignment(candidateApps, unassignedApps, assignedApps, pm);
 
 		final SectionAdapter adapter = new SectionAdapter(this.getApplicationContext());
-
-		final AppAdapter unusedApps = new AppAdapter(this, filterSystemApps(launcherApps));
-		vibratedApps = getVibratedApps(launcherApps, pm);
-		final AppAdapter usedApps = new AppAdapter(this, vibratedApps);
+		final AppAdapter unusedApps = new AppAdapter(this, unassignedApps);
+		final AppAdapter usedApps = new AppAdapter(this, assignedApps);
 
 		adapter.addSection(getString(R.string.add_a_pattern), unusedApps);
 		adapter.addSection(getString(R.string.review_a_pattern), usedApps);
 
 		list.setAdapter(adapter);
-
 		list.setOnItemClickListener(this);
-
 	}
 
 	@Override
@@ -86,46 +92,31 @@ public class NotificationBuzzerActivity extends ListActivity implements OnItemCl
 	@Override
 	protected void onStop() {
 		super.onStop();
-		if (vibrationPatternDialog.isShowing()) {
+		if (vibrationPattern != null && vibrationPatternDialog.isShowing()) {
 			vibrationPatternDialog.dismiss();
 		}
 	}
 
-	private List<ResolveInfo> getVibratedApps(final List<ResolveInfo> launcherApps, final PackageManager pm) {
+	private void sortAppAssignment(final List<ResolveInfo> allApps, final List<ResolveInfo> unassignedApps,
+			final List<ResolveInfo> assignedApps, final PackageManager pm) {
 
-		// We have the list of all apps, we want two lists. One with used apps,
-		// one with unused apps.
-
-		final List<ResolveInfo> usedApps = new ArrayList<ResolveInfo>();
-
-		final List<String> appNames = new ArrayList<String>();
-		for (int x = 0; x < launcherApps.size(); x++) {
-			appNames.add(launcherApps.get(x).activityInfo.applicationInfo.packageName);
-		}
-
+		final Set<String> appsInDatabase = new HashSet<String>();
 		final Cursor baseApps = base.queryAll(BuzzDB.DATABASE_APP_TABLE);
 		baseApps.moveToFirst();
 		while (!baseApps.isAfterLast()) {
-			final String name = baseApps.getString(BuzzDB.APP_INDEX_NAME);
-			if (appNames.contains(name)) {
-				final int index = appNames.indexOf(name);
-				final ResolveInfo item = launcherApps.get(index);
-				usedApps.add(item);
-				appNames.set(index, "");
-				launcherApps.set(index, null);
-			}
-
+			final String appName = baseApps.getString(BuzzDB.APP_INDEX_NAME);
+			Log.d(TAG, "first column = " + baseApps.getString(0) + ", second column = " + appName);
+			appsInDatabase.add(appName);
 			baseApps.moveToNext();
 		}
 
-		for (int x = 0; x < launcherApps.size(); x++) {
-			if (launcherApps.get(x) == null) {
-				launcherApps.remove(x);
-				x--;
+		for (final ResolveInfo rInfo : allApps) {
+			if (appsInDatabase.contains(rInfo.activityInfo.applicationInfo.packageName)) {
+				assignedApps.add(rInfo);
+			} else {
+				unassignedApps.add(rInfo);
 			}
 		}
-
-		return usedApps;
 	}
 
 	private static List<ResolveInfo> filterSystemApps(final List<ResolveInfo> allApps) {
@@ -168,13 +159,6 @@ public class NotificationBuzzerActivity extends ListActivity implements OnItemCl
 				.getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_HAPTIC);
 
 		for (final AccessibilityServiceInfo info : validList) {
-			// Log.w(ACTIVITY_NAME, info.getSettingsActivityName());
-			// }
-			// for (int x = 0; x < validList.size(); x++) {
-			// final String[] packageNames = validList.get(x).packageNames;
-			//
-			// for (int y = 0; y < packageNames.length; y++) {
-			// if (packageNames[y].equals(NOTIFICATION_BUZZER_PACKAGE)) {
 			if (info.getSettingsActivityName().endsWith(ACTIVITY_NAME)) {
 				return;
 			}
@@ -183,7 +167,7 @@ public class NotificationBuzzerActivity extends ListActivity implements OnItemCl
 		final AlertDialog.Builder alert = new AlertDialog.Builder(this);
 
 		alert.setTitle("Accessability Settings");
-		alert.setMessage("You need to activate accessability settings to use Notification Buzzer. Continue?");
+		alert.setMessage(getString(R.string.activate_accessability_settings));
 
 		alert.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
 			@Override
@@ -209,6 +193,8 @@ public class NotificationBuzzerActivity extends ListActivity implements OnItemCl
 
 	@Override
 	public void onItemClick(final AdapterView<?> parent, final View view, final int position, final long id) {
+		Log.d(TAG, "postion = " + position);
+		listPosition = position;
 		if (vibrationPatternDialog == null) {
 			vibrationPatternDialog = new VibrationPatternDialog(this, R.style.VibrationPatternDialogStyle);
 			vibrationPatternDialog.setOnDismissListener(this);
@@ -225,9 +211,35 @@ public class NotificationBuzzerActivity extends ListActivity implements OnItemCl
 	public void onDismiss(final DialogInterface dialog) {
 		if (!isCanceled) {
 			Log.d(TAG, "onDismiss");
-			finalPattern = vibrationPattern.getFinalizedPattern();
+			final Long[] finalPattern = vibrationPattern.getFinalizedPattern();
+			final ContentValues values = new ContentValues();
+			final String patternString = serializePattern(finalPattern);
+			final String appName = getAppNameForPosition(listPosition);
+			Log.d(TAG, "patternString = " + patternString);
+			Log.d(TAG, "appName = " + appName);
+			values.put(BuzzDB.APP_KEY_NAME, appName);
+			values.put(BuzzDB.APP_KEY_VIBRATION, patternString);
+			base.createRow(BuzzDB.DATABASE_APP_TABLE, values);
 		}
+	}
 
+	private String getAppNameForPosition(final int position) {
+		if (position <= unassignedApps.size()) {
+			// position - 1, because of the section header
+			return unassignedApps.get(position - 1).activityInfo.applicationInfo.packageName;
+		} else {
+			// position - unassignedApps.size() - 2, because of both section
+			// headers and the unassignedApps
+			return assignedApps.get(position - unassignedApps.size() - 2).activityInfo.applicationInfo.packageName;
+		}
+	}
+
+	private String serializePattern(final Long[] finalPattern) {
+		String toReturn = "" + finalPattern[0];
+		for (int i = 1; i < finalPattern.length; ++i) {
+			toReturn += "-" + finalPattern[i];
+		}
+		return toReturn;
 	}
 
 	@Override
