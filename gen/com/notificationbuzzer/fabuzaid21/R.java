@@ -10,22 +10,39 @@ package com.notificationbuzzer.fabuzaid21;
 public final class R {
     public static final class attr {
     }
+    public static final class color {
+        public static final int transparent_white=0x7f070000;
+    }
     public static final class drawable {
-        public static final int ic_launcher=0x7f020000;
+        public static final int cancel=0x7f020000;
+        public static final int ic_launcher=0x7f020001;
+        public static final int ok=0x7f020002;
+        public static final int pause=0x7f020003;
+        public static final int play=0x7f020004;
+        public static final int record=0x7f020005;
+        public static final int red_circle=0x7f020006;
+        public static final int stop=0x7f020007;
     }
     public static final class id {
-        public static final int app_icon=0x7f080000;
-        public static final int app_name=0x7f080001;
-        public static final int list_header_title=0x7f080002;
-        public static final int menu_settings=0x7f080003;
+        public static final int ViewColorPickerHelper=0x7f090006;
+        public static final int accept=0x7f090008;
+        public static final int app_icon=0x7f090000;
+        public static final int app_name=0x7f090001;
+        public static final int cancel=0x7f090007;
+        public static final int list_header_title=0x7f090002;
+        public static final int menu_settings=0x7f090009;
+        public static final int record=0x7f090005;
+        public static final int vibration_instructions=0x7f090004;
+        public static final int vibration_pattern=0x7f090003;
     }
     public static final class layout {
         public static final int activity_notification_buzzer=0x7f030000;
         public static final int app_row=0x7f030001;
         public static final int list_header=0x7f030002;
+        public static final int vibration_pattern=0x7f030003;
     }
     public static final class menu {
-        public static final int activity_notification_buzzer=0x7f070000;
+        public static final int activity_notification_buzzer=0x7f080000;
     }
     public static final class string {
         public static final int app_name=0x7f050000;
@@ -33,6 +50,8 @@ public final class R {
         public static final int menu_settings=0x7f050002;
         public static final int service_description=0x7f050004;
         public static final int title_activity_notification_buzzer=0x7f050003;
+        public static final int vibration_pattern_explanation=0x7f050005;
+        public static final int vibration_pattern_tapping=0x7f050006;
     }
     public static final class style {
         /** 
@@ -61,6 +80,7 @@ public final class R {
  All customizations that are NOT specific to a particular API-level can go here. 
          */
         public static final int AppTheme=0x7f060001;
+        public static final int VibrationPatternDialogStyle=0x7f060002;
     }
     public static final class xml {
         public static final int accessibilityservice=0x7f040000;

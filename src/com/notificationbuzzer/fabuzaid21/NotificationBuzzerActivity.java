@@ -5,10 +5,10 @@ import java.util.List;
 
 import android.accessibilityservice.AccessibilityServiceInfo;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.ListActivity;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnDismissListener;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
@@ -24,14 +24,16 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
-public class NotificationBuzzerActivity extends ListActivity implements OnItemClickListener {
+public class NotificationBuzzerActivity extends ListActivity implements OnItemClickListener, OnDismissListener {
 
 	private static final String NOTIFICATION_BUZZER_PACKAGE = NotificationBuzzerActivity.class.getPackage().getName();
 	private static final String ACTIVITY_NAME = NotificationBuzzerActivity.class.getSimpleName();
 
 	private BuzzDB base;
 	private List<ResolveInfo> vibratedApps;
-	private Dialog vibrationPatternDialog;
+	private VibrationPatternDialog vibrationPatternDialog;
+	private VibrationPattern vibrationPattern;
+	private Long[] finalPattern;
 
 	@Override
 	protected void onCreate(final Bundle savedInstanceState) {
@@ -53,8 +55,6 @@ public class NotificationBuzzerActivity extends ListActivity implements OnItemCl
 		final Intent intent = new Intent(Intent.ACTION_MAIN, null);
 		intent.addCategory(Intent.CATEGORY_LAUNCHER);
 		final List<ResolveInfo> launcherApps = pm.queryIntentActivities(intent, PackageManager.PERMISSION_GRANTED);
-
-		
 
 		final SectionAdapter adapter = new SectionAdapter(this.getApplicationContext());
 
@@ -207,9 +207,17 @@ public class NotificationBuzzerActivity extends ListActivity implements OnItemCl
 	public void onItemClick(final AdapterView<?> arg0, final View arg1, final int arg2, final long arg3) {
 		if (vibrationPatternDialog == null) {
 			vibrationPatternDialog = new VibrationPatternDialog(this, R.style.VibrationPatternDialogStyle);
+			vibrationPatternDialog.setOnDismissListener(this);
 		}
+		vibrationPattern = new VibrationPattern();
+		vibrationPatternDialog.setVibrationPattern(vibrationPattern);
 		vibrationPatternDialog.show();
 
 	}
 
+	@Override
+	public void onDismiss(final DialogInterface dialog) {
+		finalPattern = vibrationPattern.getFinalizedPattern();
+
+	}
 }
