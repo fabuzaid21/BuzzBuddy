@@ -4,11 +4,11 @@
     android:layout_height="match_parent"
     tools:context=".NotificationBuzzerActivity" >
 
-    <ListView
+    <com.emilsjolander.components.stickylistheaders.StickyListHeadersListView
         android:id="@android:id/list"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:cacheColorHint="#FFFFFF" >
-    </ListView>
+    </com.emilsjolander.components.stickylistheaders.StickyListHeadersListView>
 
 </LinearLayout>

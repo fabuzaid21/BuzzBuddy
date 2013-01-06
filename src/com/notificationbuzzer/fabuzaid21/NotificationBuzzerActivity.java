@@ -19,6 +19,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.database.Cursor;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
@@ -27,7 +28,8 @@ import android.view.View;
 import android.view.accessibility.AccessibilityManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ListView;
+
+import com.emilsjolander.components.stickylistheaders.StickyListHeadersListView;
 
 public class NotificationBuzzerActivity extends ListActivity implements OnItemClickListener, OnDismissListener,
 		OnCancelListener {
@@ -59,7 +61,13 @@ public class NotificationBuzzerActivity extends ListActivity implements OnItemCl
 		base = ((NotificationBuzzerApp) getApplication()).getDatabase();
 		base.open();
 
-		final ListView list = getListView();
+		final StickyListHeadersListView stickyList = (StickyListHeadersListView) getListView();
+		stickyList.setDivider(new ColorDrawable(0xffffffff));
+		stickyList.setDividerHeight(1);
+		// stickyList.setOnScrollListener(this);
+		stickyList.setOnItemClickListener(this);
+		// stickyList.setOnHeaderClickListener(this);
+
 		final PackageManager pm = getPackageManager();
 
 		final Intent intent = new Intent(Intent.ACTION_MAIN, null);
@@ -71,15 +79,24 @@ public class NotificationBuzzerActivity extends ListActivity implements OnItemCl
 		assignedApps = new ArrayList<ResolveInfo>();
 		sortAppAssignment(candidateApps, unassignedApps, assignedApps, pm);
 
-		final SectionAdapter adapter = new SectionAdapter(this.getApplicationContext());
-		final AppAdapter unusedApps = new AppAdapter(this, unassignedApps);
-		final AppAdapter usedApps = new AppAdapter(this, assignedApps);
+		// takes and filters launcher apps in one swoop
+		// List<ResolveInfo> filteredApps =
+		// filterSystemApps(pm.queryIntentActivities(intent,
+		// PackageManager.PERMISSION_GRANTED));
+		// List<ResolveInfo> vibratedApps = getVibratedApps(filteredApps, pm);
 
-		adapter.addSection(getString(R.string.add_a_pattern), unusedApps);
-		adapter.addSection(getString(R.string.review_a_pattern), usedApps);
+		// List<ResolveInfo> totalApps=new ArrayList<ResolveInfo>();
 
-		list.setAdapter(adapter);
-		list.setOnItemClickListener(this);
+		// for(int x=0;x<vibratedApps.size();x++)
+		// totalApps.add(vibratedApps.get(x));
+
+		// for(int x=0;x<filteredApps.size();x++)
+		// totalApps.add(filteredApps.get(x));
+
+		final NotiBuzzAdapter adapter = new NotiBuzzAdapter(this, candidateApps, assignedApps.size() - 1);
+
+		stickyList.setAdapter(adapter);
+		stickyList.setOnItemClickListener(this);
 	}
 
 	@Override
@@ -219,18 +236,15 @@ public class NotificationBuzzerActivity extends ListActivity implements OnItemCl
 			Log.d(TAG, "appName = " + appName);
 			values.put(BuzzDB.APP_KEY_NAME, appName);
 			values.put(BuzzDB.APP_KEY_VIBRATION, patternString);
-			base.createRow(BuzzDB.DATABASE_APP_TABLE, values);
+			// base.createRow(BuzzDB.DATABASE_APP_TABLE, values);
 		}
 	}
 
 	private String getAppNameForPosition(final int position) {
-		if (position <= unassignedApps.size()) {
-			// position - 1, because of the section header
-			return unassignedApps.get(position - 1).activityInfo.applicationInfo.packageName;
+		if (position < assignedApps.size()) {
+			return assignedApps.get(position).activityInfo.applicationInfo.packageName;
 		} else {
-			// position - unassignedApps.size() - 2, because of both section
-			// headers and the unassignedApps
-			return assignedApps.get(position - unassignedApps.size() - 2).activityInfo.applicationInfo.packageName;
+			return unassignedApps.get(position - assignedApps.size()).activityInfo.applicationInfo.packageName;
 		}
 	}
 

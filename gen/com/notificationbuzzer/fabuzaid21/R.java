@@ -26,22 +26,24 @@ public final class R {
         public static final int stop=0x7f020009;
     }
     public static final class id {
-        public static final int ViewColorPickerHelper=0x7f090006;
-        public static final int accept=0x7f090008;
+        public static final int ViewColorPickerHelper=0x7f090007;
+        public static final int accept=0x7f090009;
         public static final int app_icon=0x7f090000;
         public static final int app_name=0x7f090001;
-        public static final int cancel=0x7f090007;
-        public static final int list_header_title=0x7f090002;
-        public static final int menu_settings=0x7f090009;
-        public static final int record=0x7f090005;
-        public static final int vibration_instructions=0x7f090004;
-        public static final int vibration_pattern=0x7f090003;
+        public static final int cancel=0x7f090008;
+        public static final int list_header_title=0x7f090003;
+        public static final int menu_settings=0x7f09000a;
+        public static final int record=0x7f090006;
+        public static final int text=0x7f090002;
+        public static final int vibration_instructions=0x7f090005;
+        public static final int vibration_pattern=0x7f090004;
     }
     public static final class layout {
         public static final int activity_notification_buzzer=0x7f030000;
         public static final int app_row=0x7f030001;
-        public static final int list_header=0x7f030002;
-        public static final int vibration_pattern=0x7f030003;
+        public static final int header=0x7f030002;
+        public static final int list_header=0x7f030003;
+        public static final int vibration_pattern=0x7f030004;
     }
     public static final class menu {
         public static final int activity_notification_buzzer=0x7f080000;
