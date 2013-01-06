@@ -44,4 +44,8 @@ public class VibrationPattern {
 		return System.currentTimeMillis();
 	}
 
+	public boolean isPatternPresent() {
+		return vibrationPattern.size() != 0;
+	}
+
 }

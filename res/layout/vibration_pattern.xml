@@ -75,7 +75,7 @@
             android:layout_alignParentTop="true"
             android:layout_toRightOf="@id/ViewColorPickerHelper"
             android:background="?android:attr/selectableItemBackground"
-            android:src="@drawable/ok" />
+            android:src="@drawable/accept" />
     </RelativeLayout>
 
 </RelativeLayout>

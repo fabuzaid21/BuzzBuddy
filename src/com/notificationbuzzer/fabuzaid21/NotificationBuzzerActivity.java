@@ -8,6 +8,7 @@ import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnCancelListener;
 import android.content.DialogInterface.OnDismissListener;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
@@ -17,6 +18,7 @@ import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.accessibility.AccessibilityManager;
@@ -24,16 +26,19 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
-public class NotificationBuzzerActivity extends ListActivity implements OnItemClickListener, OnDismissListener {
+public class NotificationBuzzerActivity extends ListActivity implements OnItemClickListener, OnDismissListener,
+		OnCancelListener {
 
 	private static final String NOTIFICATION_BUZZER_PACKAGE = NotificationBuzzerActivity.class.getPackage().getName();
 	private static final String ACTIVITY_NAME = NotificationBuzzerActivity.class.getSimpleName();
+	private static final String TAG = ACTIVITY_NAME;
 
 	private BuzzDB base;
 	private List<ResolveInfo> vibratedApps;
 	private VibrationPatternDialog vibrationPatternDialog;
 	private VibrationPattern vibrationPattern;
 	private Long[] finalPattern;
+	private boolean isCanceled;
 
 	@Override
 	protected void onCreate(final Bundle savedInstanceState) {
@@ -62,8 +67,8 @@ public class NotificationBuzzerActivity extends ListActivity implements OnItemCl
 		vibratedApps = getVibratedApps(launcherApps, pm);
 		final AppAdapter usedApps = new AppAdapter(this, vibratedApps);
 
-		adapter.addSection("Add a pattern", unusedApps);
-		adapter.addSection("Review a pattern", usedApps);
+		adapter.addSection(getString(R.string.add_a_pattern), unusedApps);
+		adapter.addSection(getString(R.string.review_a_pattern), usedApps);
 
 		list.setAdapter(adapter);
 
@@ -121,7 +126,6 @@ public class NotificationBuzzerActivity extends ListActivity implements OnItemCl
 		}
 
 		return usedApps;
-
 	}
 
 	private static List<ResolveInfo> filterSystemApps(final List<ResolveInfo> allApps) {
@@ -204,20 +208,32 @@ public class NotificationBuzzerActivity extends ListActivity implements OnItemCl
 	}
 
 	@Override
-	public void onItemClick(final AdapterView<?> arg0, final View arg1, final int arg2, final long arg3) {
+	public void onItemClick(final AdapterView<?> parent, final View view, final int position, final long id) {
 		if (vibrationPatternDialog == null) {
 			vibrationPatternDialog = new VibrationPatternDialog(this, R.style.VibrationPatternDialogStyle);
 			vibrationPatternDialog.setOnDismissListener(this);
+			vibrationPatternDialog.setOnCancelListener(this);
 		}
 		vibrationPattern = new VibrationPattern();
 		vibrationPatternDialog.setVibrationPattern(vibrationPattern);
+		isCanceled = false;
 		vibrationPatternDialog.show();
 
 	}
 
 	@Override
 	public void onDismiss(final DialogInterface dialog) {
-		finalPattern = vibrationPattern.getFinalizedPattern();
+		if (!isCanceled) {
+			Log.d(TAG, "onDismiss");
+			finalPattern = vibrationPattern.getFinalizedPattern();
+		}
+
+	}
+
+	@Override
+	public void onCancel(final DialogInterface dialog) {
+		Log.d(TAG, "onCancel");
+		isCanceled = true;
 
 	}
 }
