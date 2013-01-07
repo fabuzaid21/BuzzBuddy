@@ -15,26 +15,34 @@ import com.emilsjolander.components.stickylistheaders.StickyListHeadersAdapter;
 
 public class NotiBuzzAdapter extends BaseAdapter implements StickyListHeadersAdapter {
 
-	private final List<ResolveInfo> list;
+	private final List<ResolveInfo> assignedApps;
+	private final List<ResolveInfo> unassignedApps;
 	private final LayoutInflater inflater;
-	int dividerSpot;
 	Context context;
 
-	public NotiBuzzAdapter(final Context context, final List<ResolveInfo> list, final int divider) {
+	public NotiBuzzAdapter(final Context context, final List<ResolveInfo> assignedApps,
+			final List<ResolveInfo> unassignedApps) {
 		inflater = LayoutInflater.from(context);
-		this.list = list;
+		this.assignedApps = assignedApps;
+		this.unassignedApps = unassignedApps;
 		this.context = context;
-		dividerSpot = divider;
 	}
 
 	@Override
 	public int getCount() {
-		return list.size();
+		return assignedApps.size() + unassignedApps.size();
 	}
 
 	@Override
 	public Object getItem(final int position) {
-		return list.get(position);
+		return getItemFromLists(position);
+	}
+
+	private ResolveInfo getItemFromLists(final int position) {
+		if (position >= assignedApps.size()) {
+			return unassignedApps.get(position - assignedApps.size());
+		}
+		return assignedApps.get(position);
 	}
 
 	@Override
@@ -63,7 +71,7 @@ public class NotiBuzzAdapter extends BaseAdapter implements StickyListHeadersAda
 		}
 
 		final ViewHolder holder = (ViewHolder) view.getTag();
-		final ResolveInfo item = list.get(position);
+		final ResolveInfo item = getItemFromLists(position);
 		holder.icon.setImageDrawable(item.loadIcon(context.getPackageManager()));
 		holder.appName.setText(item.loadLabel(context.getPackageManager()));
 
@@ -83,7 +91,7 @@ public class NotiBuzzAdapter extends BaseAdapter implements StickyListHeadersAda
 		}
 
 		// set header text as first char in name
-		if (position > dividerSpot) {
+		if (position >= assignedApps.size()) {
 			holder.text.setText("Unrecorded Apps");
 		} else {
 			holder.text.setText("Recorded Apps");
@@ -98,14 +106,14 @@ public class NotiBuzzAdapter extends BaseAdapter implements StickyListHeadersAda
 	public long getHeaderId(final int position) {
 		// return the first character of the country as ID because this is what
 		// headers are based upon
-		if (position > dividerSpot) {
+		if (position >= assignedApps.size()) {
 			return 1;
 		} else {
 			return 0;
 		}
 	}
 
-	class HeaderViewHolder {
+	static class HeaderViewHolder {
 		TextView text;
 	}
 

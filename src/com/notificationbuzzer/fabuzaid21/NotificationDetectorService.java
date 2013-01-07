@@ -1,6 +1,7 @@
 package com.notificationbuzzer.fabuzaid21;
 
 import android.accessibilityservice.AccessibilityService;
+import android.accessibilityservice.AccessibilityServiceInfo;
 import android.content.Context;
 import android.database.Cursor;
 import android.media.AudioManager;
@@ -20,7 +21,6 @@ public class NotificationDetectorService extends AccessibilityService {
 		if (event.getEventType() == AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED) {
 			final String packageName = String.valueOf(event.getPackageName());
 			Log.d(TAG, packageName);
-			// TODO change this to vibrate to the actual pattern
 			final BuzzDB base = ((NotificationBuzzerApp) getApplication()).getDatabase();
 			final Cursor resultSet = base.queryByPackageName(packageName);
 			resultSet.moveToFirst();
@@ -49,6 +49,12 @@ public class NotificationDetectorService extends AccessibilityService {
 		Log.d(TAG, "onServiceConnected");
 		vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 		audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+
+		final AccessibilityServiceInfo info = new AccessibilityServiceInfo();
+		info.eventTypes = AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED;
+		info.notificationTimeout = 0;
+		info.feedbackType = AccessibilityServiceInfo.FEEDBACK_HAPTIC;
+		setServiceInfo(info);
 	}
 
 	@Override

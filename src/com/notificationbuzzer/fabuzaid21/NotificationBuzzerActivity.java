@@ -46,7 +46,6 @@ public class NotificationBuzzerActivity extends ListActivity implements OnItemCl
 	private List<ResolveInfo> assignedApps;
 	private NotiBuzzAdapter adapter;
 	private StickyListHeadersListView stickyList;
-	private List<ResolveInfo> candidateApps;
 
 	@Override
 	protected void onCreate(final Bundle savedInstanceState) {
@@ -67,22 +66,20 @@ public class NotificationBuzzerActivity extends ListActivity implements OnItemCl
 		stickyList = (StickyListHeadersListView) getListView();
 		stickyList.setDivider(new ColorDrawable(0xffffffff));
 		stickyList.setDividerHeight(1);
-		// stickyList.setOnScrollListener(this);
 		stickyList.setOnItemClickListener(this);
-		// stickyList.setOnHeaderClickListener(this);
 
 		final PackageManager pm = getPackageManager();
 
 		final Intent intent = new Intent(Intent.ACTION_MAIN, null);
 		intent.addCategory(Intent.CATEGORY_LAUNCHER);
 		final List<ResolveInfo> launcherApps = pm.queryIntentActivities(intent, PackageManager.PERMISSION_GRANTED);
-		candidateApps = filterSystemApps(launcherApps);
+		final List<ResolveInfo> candidateApps = filterSystemApps(launcherApps);
 
 		unassignedApps = new ArrayList<ResolveInfo>();
 		assignedApps = new ArrayList<ResolveInfo>();
 		sortAppAssignment(candidateApps, unassignedApps, assignedApps, pm);
 
-		adapter = new NotiBuzzAdapter(this, candidateApps, assignedApps.size() - 1);
+		adapter = new NotiBuzzAdapter(this, assignedApps, unassignedApps);
 
 		stickyList.setAdapter(adapter);
 		stickyList.setOnItemClickListener(this);
@@ -124,11 +121,6 @@ public class NotificationBuzzerActivity extends ListActivity implements OnItemCl
 				unassignedApps.add(rInfo);
 			}
 		}
-
-		/*
-		 * for(final ResolveInfo rInfo: assignedApps) { allApps.remove(rInfo);
-		 * allApps.add(rInfo); }
-		 */
 	}
 
 	private static List<ResolveInfo> filterSystemApps(final List<ResolveInfo> allApps) {
@@ -157,8 +149,7 @@ public class NotificationBuzzerActivity extends ListActivity implements OnItemCl
 
 	@Override
 	public boolean onCreateOptionsMenu(final Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		// getMenuInflater().inflate(R.menu.activity_notification_buzzer, menu);
+		// Don't inflate menu: menu's suck
 		return true;
 	}
 
@@ -190,7 +181,7 @@ public class NotificationBuzzerActivity extends ListActivity implements OnItemCl
 		startActivity(settingsIntent);
 	}
 
-	public boolean isAccessibilityEnabled() {
+	private boolean isAccessibilityEnabled() {
 		int accessibilityEnabled = 0;
 
 		try {
@@ -232,7 +223,6 @@ public class NotificationBuzzerActivity extends ListActivity implements OnItemCl
 		vibrationPatternDialog.setVibrationPattern(vibrationPattern);
 		isCanceled = false;
 		vibrationPatternDialog.show();
-
 	}
 
 	@Override
@@ -259,31 +249,15 @@ public class NotificationBuzzerActivity extends ListActivity implements OnItemCl
 				base.updateRow(BuzzDB.DATABASE_APP_TABLE, rowId, values);
 			} else {
 				base.createRow(BuzzDB.DATABASE_APP_TABLE, values);
+				updateLists(listPosition);
 			}
-
-			/*
-			 * unassignedApps = new ArrayList<ResolveInfo>(); assignedApps = new
-			 * ArrayList<ResolveInfo>(); sortAppAssignment(candidateApps,
-			 * unassignedApps, assignedApps, getPackageManager());
-			 * 
-			 * adapter = new NotiBuzzAdapter(this, candidateApps,
-			 * assignedApps.size() - 1);
-			 * 
-			 * stickyList.setAdapter(adapter);
-			 * 
-			 * /*for(int x=0;x<unassignedApps.size();x++) {
-			 * if(unassignedApps.get
-			 * (x).activityInfo.applicationInfo.packageName.equals(appName)) {
-			 * assignedApps.add(unassignedApps.remove(x));
-			 * sortAppAssignment(candidateApps, unassignedApps, assignedApps,
-			 * getPackageManager()); adapter = new NotiBuzzAdapter(this,
-			 * candidateApps, assignedApps.size() - 1);
-			 * stickyList.setAdapter(adapter); return; }
-			 * 
-			 * 
-			 * }
-			 */
 		}
+	}
+
+	private void updateLists(final int position) {
+		assignedApps.add(unassignedApps.get(position - assignedApps.size()));
+		unassignedApps.remove(position - (assignedApps.size() - 1));
+		adapter.notifyDataSetChanged();
 	}
 
 	private String getAppNameForPosition(final int position) {
@@ -306,6 +280,5 @@ public class NotificationBuzzerActivity extends ListActivity implements OnItemCl
 	public void onCancel(final DialogInterface dialog) {
 		Log.d(TAG, "onCancel");
 		isCanceled = true;
-
 	}
 }
