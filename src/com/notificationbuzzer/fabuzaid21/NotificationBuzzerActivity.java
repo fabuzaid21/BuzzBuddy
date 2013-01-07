@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 import android.accessibilityservice.AccessibilityServiceInfo;
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.content.ContentValues;
@@ -14,12 +15,13 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.DialogInterface.OnDismissListener;
 import android.content.Intent;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.content.pm.ServiceInfo;
 import android.database.Cursor;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
@@ -125,11 +127,13 @@ public class NotificationBuzzerActivity extends ListActivity implements OnItemCl
 	private static List<ResolveInfo> filterSystemApps(final List<ResolveInfo> allApps) {
 		final List<ResolveInfo> notificationApps = new ArrayList<ResolveInfo>();
 		for (final ResolveInfo info : allApps) {
-			if ((info.activityInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) == 0
-					|| info.activityInfo.applicationInfo.packageName
-							.matches("com.android.(mms|contacts|calendar|email)")) {
 
-				if (info.activityInfo.applicationInfo.packageName.equals(NOTIFICATION_BUZZER_PACKAGE)) {
+			final String packageName = info.activityInfo.applicationInfo.packageName;
+			Log.d(TAG, "" + packageName);
+			if (info.activityInfo.applicationInfo.sourceDir.startsWith("/data/app")
+					|| packageName.matches("(com.android.(mms|contacts|calendar|email)|com.google.android.*)")) {
+
+				if (packageName.equals(NOTIFICATION_BUZZER_PACKAGE)) {
 					continue;
 				}
 				notificationApps.add(info);
@@ -155,15 +159,25 @@ public class NotificationBuzzerActivity extends ListActivity implements OnItemCl
 		return info.applicationInfo.processName;
 	}
 
+	@SuppressLint("NewApi")
 	private void checkAccessibility() {
 		final AccessibilityManager accMan = (AccessibilityManager) getSystemService(Context.ACCESSIBILITY_SERVICE);
 
-		final List<AccessibilityServiceInfo> validList = accMan
-				.getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_HAPTIC);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+			final List<AccessibilityServiceInfo> validList = accMan
+					.getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_HAPTIC);
+			for (final AccessibilityServiceInfo info : validList) {
+				if (info.getSettingsActivityName().endsWith(ACTIVITY_NAME)) {
+					return;
+				}
+			}
+		} else {
+			final List<ServiceInfo> validList = accMan.getAccessibilityServiceList();
+			for (final ServiceInfo info : validList) {
+				if (info.applicationInfo.packageName.equals(NOTIFICATION_BUZZER_PACKAGE)) {
+					return;
+				}
 
-		for (final AccessibilityServiceInfo info : validList) {
-			if (info.getSettingsActivityName().endsWith(ACTIVITY_NAME)) {
-				return;
 			}
 		}
 

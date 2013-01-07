@@ -18,6 +18,7 @@
     </style>
 
     <color name="transparent_white">#77FFFFFF</color>
+    <color name="holo_blue_dark">#ff0099cc</color>
     <style name="VibrationPatternDialogStyle" parent="@android:style/Theme.Dialog">
         <item name="android:windowBackground">@color/transparent_white</item>
         <item name="android:windowIsFloating">false</item>
