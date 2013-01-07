@@ -26,11 +26,11 @@ public class BuzzDB {
 	// client code, so it's all consistent and checked at compile-time.
 
 	static final String APP_KEY_NAME = "name";
-	static final int APP_INDEX_NAME = 0;
+	static final int APP_INDEX_NAME = 1;
 	static final String APP_KEY_VIBRATION = "active";
-	static final int APP_INDEX_VIBRATION = 1;
+	static final int APP_INDEX_VIBRATION = 2;
 
-	static final String[] APP_KEYS_ALL = { APP_KEY_NAME, APP_KEY_VIBRATION };
+	static final String[] APP_KEYS_ALL = { KEY_ROW_ID, APP_KEY_NAME, APP_KEY_VIBRATION };
 
 	private final Context context;
 	private SQLiteDatabase database;

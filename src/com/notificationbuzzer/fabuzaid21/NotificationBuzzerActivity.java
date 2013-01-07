@@ -108,7 +108,7 @@ public class NotificationBuzzerActivity extends ListActivity implements OnItemCl
 		baseApps.moveToFirst();
 		while (!baseApps.isAfterLast()) {
 			final String appName = baseApps.getString(BuzzDB.APP_INDEX_NAME);
-			Log.d(TAG, "first column = " + baseApps.getString(0) + ", second column = " + appName);
+			Log.d(TAG, "first column = " + baseApps.getString(1) + ", second column = " + appName);
 			appsInDatabase.add(appName);
 			baseApps.moveToNext();
 		}
