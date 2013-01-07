@@ -44,15 +44,17 @@ public class NotificationBuzzerActivity extends ListActivity implements OnItemCl
 	private int listPosition;
 	private List<ResolveInfo> unassignedApps;
 	private List<ResolveInfo> assignedApps;
+	private NotiBuzzAdapter adapter;
+	private StickyListHeadersListView stickyList;
+	private  List<ResolveInfo> candidateApps;
 
 	@Override
 	protected void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_notification_buzzer);
 
-		// Delete Database--for when I update the schema/triggers and need to
-		// test boolean test =
-		// this.getApplicationContext().deleteDatabase(LifeDB.DATABASE_NAME);
+		// Delete Database--for when I update the schema/triggers and need to test
+		//boolean test =	 this.getApplicationContext().deleteDatabase(BuzzDB.DATABASE_NAME);
 
 		// open the database to find apps that have a vibration associated with
 		// them already.
@@ -60,7 +62,7 @@ public class NotificationBuzzerActivity extends ListActivity implements OnItemCl
 		base = ((NotificationBuzzerApp) getApplication()).getDatabase();
 		base.open();
 
-		final StickyListHeadersListView stickyList = (StickyListHeadersListView) getListView();
+		stickyList = (StickyListHeadersListView) getListView();
 		stickyList.setDivider(new ColorDrawable(0xffffffff));
 		stickyList.setDividerHeight(1);
 		// stickyList.setOnScrollListener(this);
@@ -72,13 +74,13 @@ public class NotificationBuzzerActivity extends ListActivity implements OnItemCl
 		final Intent intent = new Intent(Intent.ACTION_MAIN, null);
 		intent.addCategory(Intent.CATEGORY_LAUNCHER);
 		final List<ResolveInfo> launcherApps = pm.queryIntentActivities(intent, PackageManager.PERMISSION_GRANTED);
-		final List<ResolveInfo> candidateApps = filterSystemApps(launcherApps);
+		candidateApps = filterSystemApps(launcherApps);
 
 		unassignedApps = new ArrayList<ResolveInfo>();
 		assignedApps = new ArrayList<ResolveInfo>();
 		sortAppAssignment(candidateApps, unassignedApps, assignedApps, pm);
 
-		final NotiBuzzAdapter adapter = new NotiBuzzAdapter(this, candidateApps, assignedApps.size() - 1);
+		adapter = new NotiBuzzAdapter(this, candidateApps, assignedApps.size() - 1);
 
 		stickyList.setAdapter(adapter);
 		stickyList.setOnItemClickListener(this);
@@ -115,9 +117,15 @@ public class NotificationBuzzerActivity extends ListActivity implements OnItemCl
 		for (final ResolveInfo rInfo : allApps) {
 			if (appsInDatabase.contains(rInfo.activityInfo.applicationInfo.packageName)) {
 				assignedApps.add(rInfo);
+				
 			} else {
 				unassignedApps.add(rInfo);
 			}
+		}
+		
+		for(final ResolveInfo rInfo: assignedApps) {
+			allApps.remove(rInfo);
+			allApps.add(rInfo);
 		}
 	}
 
@@ -244,11 +252,43 @@ public class NotificationBuzzerActivity extends ListActivity implements OnItemCl
 			final ContentValues values = new ContentValues();
 			final String patternString = serializePattern(finalPattern);
 			final String appName = getAppNameForPosition(listPosition);
+			
 			Log.d(TAG, "patternString = " + patternString);
 			Log.d(TAG, "appName = " + appName);
 			values.put(BuzzDB.APP_KEY_NAME, appName);
 			values.put(BuzzDB.APP_KEY_VIBRATION, patternString);
+			
+			Cursor nameCheck=base.query(BuzzDB.DATABASE_APP_TABLE, BuzzDB.APP_KEYS_ALL, BuzzDB.APP_KEY_NAME+"="+appName);
+			nameCheck.moveToFirst();
+			if(nameCheck.getCount()>0)
+			{
+				long rowId=nameCheck.getLong(BuzzDB.INDEX_ROW_ID);
+				base.updateRow(BuzzDB.DATABASE_APP_TABLE, rowId, values);
+			}
+			else			
 			base.createRow(BuzzDB.DATABASE_APP_TABLE, values);
+			
+			/*unassignedApps = new ArrayList<ResolveInfo>();
+			assignedApps = new ArrayList<ResolveInfo>();
+			sortAppAssignment(candidateApps, unassignedApps, assignedApps, getPackageManager());
+
+			adapter = new NotiBuzzAdapter(this, candidateApps, assignedApps.size() - 1);
+
+			stickyList.setAdapter(adapter);
+			
+			/*for(int x=0;x<unassignedApps.size();x++)
+			{
+				if(unassignedApps.get(x).activityInfo.applicationInfo.packageName.equals(appName))
+				{
+					assignedApps.add(unassignedApps.remove(x));	
+					sortAppAssignment(candidateApps, unassignedApps, assignedApps, getPackageManager());
+					adapter = new NotiBuzzAdapter(this, candidateApps, assignedApps.size() - 1);
+					stickyList.setAdapter(adapter);
+					return;					
+				}
+				
+				
+			}*/
 		}
 	}
 

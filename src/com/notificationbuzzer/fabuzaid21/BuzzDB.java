@@ -12,15 +12,15 @@ public class BuzzDB {
 	// a bunch of static strings for table names, column names, and column
 	// indexes.
 	private static final int DATABASE_VERSION = 1;
-	private static final String DATABASE_NAME = "buzzdb";
+	 static final String DATABASE_NAME = "buzzdb";
 	static final String DATABASE_APP_TABLE = "apptable";
 
 	private static final String APP_NAME = "APP";
 	private static final String VIBRATION = "VIBRATION";
 
-	private static final String KEY_ROW_ID = "_id";// Android requires exactly
+	 static final String KEY_ROW_ID = "_id";// Android requires exactly
 	// this key name
-	private static final int INDEX_ROW_ID = 0;
+	 static final int INDEX_ROW_ID = 0;
 
 	// Field names -- use the KEY_XXX constants here and in
 	// client code, so it's all consistent and checked at compile-time.
