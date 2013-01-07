@@ -123,10 +123,10 @@ public class NotificationBuzzerActivity extends ListActivity implements OnItemCl
 			}
 		}
 		
-		for(final ResolveInfo rInfo: assignedApps) {
+		/*for(final ResolveInfo rInfo: assignedApps) {
 			allApps.remove(rInfo);
 			allApps.add(rInfo);
-		}
+		}*/
 	}
 
 	private static List<ResolveInfo> filterSystemApps(final List<ResolveInfo> allApps) {
