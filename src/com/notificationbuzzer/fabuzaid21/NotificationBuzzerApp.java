@@ -1,6 +1,6 @@
 package com.notificationbuzzer.fabuzaid21;
-import android.app.Application;
 
+import android.app.Application;
 
 public class NotificationBuzzerApp extends Application {
 

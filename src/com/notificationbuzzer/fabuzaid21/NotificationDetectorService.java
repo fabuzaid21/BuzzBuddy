@@ -16,11 +16,6 @@ public class NotificationDetectorService extends AccessibilityService {
 		if (event.getEventType() == AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED) {
 			final String packageName = String.valueOf(event.getPackageName());
 			Log.d(TAG, packageName);
-			// Log.d(TAG, "" + event.getEventTime());
-			// List<CharSequence> list = event.getText();
-			// for (CharSequence str : list) {
-			// Log.d(TAG, String.valueOf(str));
-			// }
 			// TODO change this to vibrate to the actual pattern
 			final BuzzDB base = ((NotificationBuzzerApp) getApplication()).getDatabase();
 			vibrator.vibrate(1000);

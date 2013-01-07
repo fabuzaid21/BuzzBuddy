@@ -12,7 +12,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-
 public class AppAdapter extends ArrayAdapter<ResolveInfo> {
 
 	private List<ResolveInfo> list;

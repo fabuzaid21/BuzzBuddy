@@ -79,20 +79,6 @@ public class NotificationBuzzerActivity extends ListActivity implements OnItemCl
 		assignedApps = new ArrayList<ResolveInfo>();
 		sortAppAssignment(candidateApps, unassignedApps, assignedApps, pm);
 
-		// takes and filters launcher apps in one swoop
-		// List<ResolveInfo> filteredApps =
-		// filterSystemApps(pm.queryIntentActivities(intent,
-		// PackageManager.PERMISSION_GRANTED));
-		// List<ResolveInfo> vibratedApps = getVibratedApps(filteredApps, pm);
-
-		// List<ResolveInfo> totalApps=new ArrayList<ResolveInfo>();
-
-		// for(int x=0;x<vibratedApps.size();x++)
-		// totalApps.add(vibratedApps.get(x));
-
-		// for(int x=0;x<filteredApps.size();x++)
-		// totalApps.add(filteredApps.get(x));
-
 		final NotiBuzzAdapter adapter = new NotiBuzzAdapter(this, candidateApps, assignedApps.size() - 1);
 
 		stickyList.setAdapter(adapter);
@@ -236,7 +222,7 @@ public class NotificationBuzzerActivity extends ListActivity implements OnItemCl
 			Log.d(TAG, "appName = " + appName);
 			values.put(BuzzDB.APP_KEY_NAME, appName);
 			values.put(BuzzDB.APP_KEY_VIBRATION, patternString);
-			// base.createRow(BuzzDB.DATABASE_APP_TABLE, values);
+			base.createRow(BuzzDB.DATABASE_APP_TABLE, values);
 		}
 	}
 

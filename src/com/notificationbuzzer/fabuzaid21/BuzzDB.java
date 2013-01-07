@@ -130,14 +130,9 @@ public class BuzzDB {
 		 * if (tableName == DATABASE_APP_TABLE) keysList = APP_KEYS_ALL;
 		 */
 
-		final Cursor cursor = database.query(true, tableName, keysList, KEY_ROW_ID + "=" + rowId, // select
-																									// the
-																									// one
-																									// row
-																									// we
-																									// care
-																									// about
-				null, null, null, null, null);
+		// select the one row we care about
+		final Cursor cursor = database.query(true, tableName, keysList, KEY_ROW_ID + "=" + rowId, null, null, null,
+				null, null);
 
 		// cursor starts before first -- move it to the row itself.
 		cursor.moveToFirst();
