@@ -125,10 +125,10 @@ public class NotificationBuzzerActivity extends ListActivity implements OnItemCl
 			}
 		}
 
-		/*for(final ResolveInfo rInfo: assignedApps) {
-			allApps.remove(rInfo);
-			allApps.add(rInfo);
-		}*/
+		/*
+		 * for(final ResolveInfo rInfo: assignedApps) { allApps.remove(rInfo);
+		 * allApps.add(rInfo); }
+		 */
 	}
 
 	private static List<ResolveInfo> filterSystemApps(final List<ResolveInfo> allApps) {
@@ -158,7 +158,7 @@ public class NotificationBuzzerActivity extends ListActivity implements OnItemCl
 	@Override
 	public boolean onCreateOptionsMenu(final Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.activity_notification_buzzer, menu);
+		// getMenuInflater().inflate(R.menu.activity_notification_buzzer, menu);
 		return true;
 	}
 
@@ -252,7 +252,7 @@ public class NotificationBuzzerActivity extends ListActivity implements OnItemCl
 			values.put(BuzzDB.APP_KEY_NAME, appName);
 			values.put(BuzzDB.APP_KEY_VIBRATION, patternString);
 
-			Cursor nameCheck=base.query(BuzzDB.DATABASE_APP_TABLE, BuzzDB.APP_KEYS_ALL, BuzzDB.APP_KEY_NAME+"=\""+appName+"\"");
+			final Cursor nameCheck = base.queryByPackageName(appName);
 			nameCheck.moveToFirst();
 			if (nameCheck.getCount() > 0) {
 				final long rowId = nameCheck.getLong(BuzzDB.INDEX_ROW_ID);
@@ -265,12 +265,12 @@ public class NotificationBuzzerActivity extends ListActivity implements OnItemCl
 			 * unassignedApps = new ArrayList<ResolveInfo>(); assignedApps = new
 			 * ArrayList<ResolveInfo>(); sortAppAssignment(candidateApps,
 			 * unassignedApps, assignedApps, getPackageManager());
-			 *
+			 * 
 			 * adapter = new NotiBuzzAdapter(this, candidateApps,
 			 * assignedApps.size() - 1);
-			 *
+			 * 
 			 * stickyList.setAdapter(adapter);
-			 *
+			 * 
 			 * /*for(int x=0;x<unassignedApps.size();x++) {
 			 * if(unassignedApps.get
 			 * (x).activityInfo.applicationInfo.packageName.equals(appName)) {
@@ -279,8 +279,8 @@ public class NotificationBuzzerActivity extends ListActivity implements OnItemCl
 			 * getPackageManager()); adapter = new NotiBuzzAdapter(this,
 			 * candidateApps, assignedApps.size() - 1);
 			 * stickyList.setAdapter(adapter); return; }
-			 *
-			 *
+			 * 
+			 * 
 			 * }
 			 */
 		}

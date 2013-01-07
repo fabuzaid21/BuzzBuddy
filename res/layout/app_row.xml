@@ -8,8 +8,9 @@
     <ImageView
         android:id="@+id/app_icon"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="0.3" />
+        android:layout_height="48dp"
+        android:adjustViewBounds="true"
+        android:layout_weight="0.3" android:contentDescription="@string/icon_image"/>
 
     <TextView
         android:id="@+id/app_name"
