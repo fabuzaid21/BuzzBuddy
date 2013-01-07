@@ -23,7 +23,7 @@ public class VibrationPatternDialog extends Dialog implements OnClickListener {
 	private Drawable stopDrawable = null;
 	private Drawable recordDrawable = null;
 
-	private static final long[] PATTERN = { 0, 100 };
+	private static final long[] PATTERN = { 0, 5 };
 
 	private final Vibrator vibrator;
 	private boolean isRecording = false;

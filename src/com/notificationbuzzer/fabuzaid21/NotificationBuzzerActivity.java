@@ -157,8 +157,6 @@ public class NotificationBuzzerActivity extends ListActivity implements OnItemCl
 	}
 
 	private void checkAccessibility() {
-		// final AccessibilityManager accMan = (AccessibilityManager)
-		// getSystemService(Context.ACCESSIBILITY_SERVICE);
 		if (isAccessibilityEnabled()) {
 			return;
 		}
