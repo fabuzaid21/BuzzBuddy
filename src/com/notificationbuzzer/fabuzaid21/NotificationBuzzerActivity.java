@@ -258,7 +258,7 @@ public class NotificationBuzzerActivity extends ListActivity implements OnItemCl
 			values.put(BuzzDB.APP_KEY_NAME, appName);
 			values.put(BuzzDB.APP_KEY_VIBRATION, patternString);
 			
-			Cursor nameCheck=base.query(BuzzDB.DATABASE_APP_TABLE, BuzzDB.APP_KEYS_ALL, BuzzDB.APP_KEY_NAME+"="+appName);
+			Cursor nameCheck=base.query(BuzzDB.DATABASE_APP_TABLE, BuzzDB.APP_KEYS_ALL, BuzzDB.APP_KEY_NAME+"=\""+appName+"\"");
 			nameCheck.moveToFirst();
 			if(nameCheck.getCount()>0)
 			{
