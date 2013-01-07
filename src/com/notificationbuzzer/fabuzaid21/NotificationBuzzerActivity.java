@@ -5,12 +5,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import android.accessibilityservice.AccessibilityServiceInfo;
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.DialogInterface.OnDismissListener;
@@ -18,16 +15,15 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.content.pm.ServiceInfo;
 import android.database.Cursor;
 import android.graphics.drawable.ColorDrawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.provider.Settings.SettingNotFoundException;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
-import android.view.accessibility.AccessibilityManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 
@@ -39,6 +35,7 @@ public class NotificationBuzzerActivity extends ListActivity implements OnItemCl
 	private static final String NOTIFICATION_BUZZER_PACKAGE = NotificationBuzzerActivity.class.getPackage().getName();
 	private static final String ACTIVITY_NAME = NotificationBuzzerActivity.class.getSimpleName();
 	private static final String TAG = ACTIVITY_NAME;
+	private static final String ACCESSIBILITY_SERVICE_NAME = "com.notificationbuzzer.fabuzaid21/com.notificationbuzzer.fabuzaid21.NotificationDetectorService";
 
 	private BuzzDB base;
 	private VibrationPatternDialog vibrationPatternDialog;
@@ -110,7 +107,7 @@ public class NotificationBuzzerActivity extends ListActivity implements OnItemCl
 		baseApps.moveToFirst();
 		while (!baseApps.isAfterLast()) {
 			final String appName = baseApps.getString(BuzzDB.APP_INDEX_NAME);
-			Log.d(TAG, "first column = " + baseApps.getString(1) + ", second column = " + appName);
+			Log.d(TAG, "first column = " + appName + ", second column = " + baseApps.getString(2));
 			appsInDatabase.add(appName);
 			baseApps.moveToNext();
 		}
@@ -159,26 +156,11 @@ public class NotificationBuzzerActivity extends ListActivity implements OnItemCl
 		return info.applicationInfo.processName;
 	}
 
-	@SuppressLint("NewApi")
 	private void checkAccessibility() {
-		final AccessibilityManager accMan = (AccessibilityManager) getSystemService(Context.ACCESSIBILITY_SERVICE);
-
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-			final List<AccessibilityServiceInfo> validList = accMan
-					.getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_HAPTIC);
-			for (final AccessibilityServiceInfo info : validList) {
-				if (info.getSettingsActivityName().endsWith(ACTIVITY_NAME)) {
-					return;
-				}
-			}
-		} else {
-			final List<ServiceInfo> validList = accMan.getAccessibilityServiceList();
-			for (final ServiceInfo info : validList) {
-				if (info.applicationInfo.packageName.equals(NOTIFICATION_BUZZER_PACKAGE)) {
-					return;
-				}
-
-			}
+		// final AccessibilityManager accMan = (AccessibilityManager)
+		// getSystemService(Context.ACCESSIBILITY_SERVICE);
+		if (isAccessibilityEnabled()) {
+			return;
 		}
 
 		final AlertDialog.Builder alert = new AlertDialog.Builder(this);
@@ -186,26 +168,58 @@ public class NotificationBuzzerActivity extends ListActivity implements OnItemCl
 		alert.setTitle("Accessability Settings");
 		alert.setMessage(getString(R.string.activate_accessability_settings));
 
-		alert.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+		alert.setPositiveButton("Activate", new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(final DialogInterface dialog, final int whichButton) {
 				enableAccessabilitySettings();
 			}
 		});
-
-		alert.setNegativeButton("No", new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(final DialogInterface dialog, final int whichButton) {
-				// Canceled.
-			}
-		});
-
 		alert.show();
 	}
 
 	protected void enableAccessabilitySettings() {
 		final Intent settingsIntent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
 		startActivity(settingsIntent);
+	}
+
+	public boolean isAccessibilityEnabled() {
+		int accessibilityEnabled = 0;
+
+		final boolean accessibilityFound = false;
+		try {
+			accessibilityEnabled = Settings.Secure.getInt(this.getContentResolver(),
+					android.provider.Settings.Secure.ACCESSIBILITY_ENABLED);
+			Log.d(TAG, "ACCESSIBILITY: " + accessibilityEnabled);
+		} catch (final SettingNotFoundException e) {
+			Log.d(TAG, "Error finding setting, default accessibility to not found: " + e.getMessage());
+		}
+
+		final TextUtils.SimpleStringSplitter mStringColonSplitter = new TextUtils.SimpleStringSplitter(':');
+
+		if (accessibilityEnabled == 1) {
+			Log.d(TAG, "***ACCESSIBILIY IS ENABLED***: ");
+
+			final String settingValue = Settings.Secure.getString(getContentResolver(),
+					Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES);
+			Log.d(TAG, "Setting: " + settingValue);
+			if (settingValue != null) {
+				final TextUtils.SimpleStringSplitter splitter = mStringColonSplitter;
+				splitter.setString(settingValue);
+				while (splitter.hasNext()) {
+					final String accessabilityService = splitter.next();
+					Log.d(TAG, "Setting: " + accessabilityService);
+					if (accessabilityService.equalsIgnoreCase(ACCESSIBILITY_SERVICE_NAME)) {
+						Log.d(TAG, "We've found the correct setting - accessibility is switched on!");
+						return true;
+					}
+				}
+			}
+
+			Log.d(TAG, "***END***");
+		} else {
+			Log.d(TAG, "***ACCESSIBILIY IS DISABLED***");
+		}
+		return accessibilityFound;
 	}
 
 	@Override
