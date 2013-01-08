@@ -8,7 +8,7 @@
     android:layout_marginLeft="20dp"
     android:layout_marginRight="20dp"
     android:layout_marginTop="60dp"
-    android:background="@android:color/background_light"
+    android:background="@drawable/dialog_background"
     android:orientation="vertical" >
 
     <TextView
@@ -16,9 +16,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:layout_marginTop="18dp"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
+        android:layout_marginTop="18dp"
         android:text="@string/vibration_pattern_explanation"
         android:textColor="@color/holo_blue_dark" >
     </TextView>
@@ -29,6 +29,7 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:background="@drawable/item_background_holo_dark"
+        android:contentDescription="@string/record"
         android:src="@drawable/record" />
 
     <RelativeLayout
@@ -42,7 +43,7 @@
             android:layout_alignParentTop="true"
             android:layout_marginLeft="4dip"
             android:layout_marginRight="4dip"
-            android:background="@drawable/divider_vertical_dark" />
+            android:background="@color/holo_blue_dark" />
 
         <View
             android:id="@+id/ViewColorPickerHelper"
@@ -53,7 +54,7 @@
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="4dip"
             android:layout_marginTop="4dip"
-            android:background="@drawable/divider_vertical_dark" />
+            android:background="@color/holo_blue_dark" />
 
         <ImageButton
             android:id="@+id/cancel"
@@ -62,8 +63,10 @@
             android:layout_alignParentBottom="true"
             android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
+            android:layout_marginRight="-2dip"
             android:layout_toLeftOf="@id/ViewColorPickerHelper"
             android:background="@drawable/item_background_holo_dark"
+            android:contentDescription="@string/cancel"
             android:src="@drawable/cancel" />
 
         <ImageButton
@@ -73,8 +76,10 @@
             android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"
+            android:layout_marginLeft="-2dip"
             android:layout_toRightOf="@id/ViewColorPickerHelper"
             android:background="@drawable/item_background_holo_dark"
+            android:contentDescription="@string/accept"
             android:src="@drawable/accept" />
     </RelativeLayout>
 

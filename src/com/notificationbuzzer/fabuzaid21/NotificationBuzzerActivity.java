@@ -16,7 +16,6 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.database.Cursor;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.provider.Settings.SettingNotFoundException;
@@ -64,8 +63,6 @@ public class NotificationBuzzerActivity extends ListActivity implements OnItemCl
 		base.open();
 
 		stickyList = (StickyListHeadersListView) getListView();
-		stickyList.setDivider(new ColorDrawable(0xffffffff));
-		stickyList.setDividerHeight(1);
 		stickyList.setOnItemClickListener(this);
 
 		final PackageManager pm = getPackageManager();

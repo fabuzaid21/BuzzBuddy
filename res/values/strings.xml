@@ -12,5 +12,8 @@
     <string name="review_a_pattern">Review a pattern</string>
     <string name="activate_accessability_settings">You need to activate accessability settings to use Notification Buzzer.</string>
     <string name="icon_image">Icon image</string>
+    <string name="cancel">Cancel</string>
+    <string name="accept">Accept</string>
+    <string name="record">Record</string>
 
 </resources>
