@@ -29,8 +29,10 @@ public class BuzzDB {
 	static final int APP_INDEX_NAME = 1;
 	static final String APP_KEY_VIBRATION = "active";
 	static final int APP_INDEX_VIBRATION = 2;
+	static final String APP_KEY_DATE="date";
+	static final int APP_INDEX_DATE=3;
 
-	static final String[] APP_KEYS_ALL = { KEY_ROW_ID, APP_KEY_NAME, APP_KEY_VIBRATION };
+	static final String[] APP_KEYS_ALL = { KEY_ROW_ID, APP_KEY_NAME, APP_KEY_VIBRATION, APP_KEY_DATE };
 
 	private final Context context;
 	private SQLiteDatabase database;
@@ -106,7 +108,7 @@ public class BuzzDB {
 		 */
 
 		keysList = APP_KEYS_ALL;
-		orderMe = APP_KEY_NAME + " ASC";
+		orderMe = APP_KEY_DATE + " DESC";
 
 		return database.query(tableName, keysList, // i.e. return all 4 columns
 				null, null, null, null, orderMe // order-by, "DESC" for
@@ -178,9 +180,11 @@ public class BuzzDB {
 
 	private static class BuzzDBHelper extends SQLiteOpenHelper {
 		// SQL text to create table (basically just string or integer)
-		private static final String DATABASE_CREATE_APP = "create table " + DATABASE_APP_TABLE + " (" + KEY_ROW_ID
-				+ " integer primary key autoincrement, " + APP_KEY_NAME + " text not null unique, " + APP_KEY_VIBRATION
-				+ " text not null unique " + ");";
+		private static final String DATABASE_CREATE_APP = "create table " + DATABASE_APP_TABLE + " (" + 
+		KEY_ROW_ID	+ " integer primary key autoincrement, " + 
+		APP_KEY_NAME + " text not null unique, " + 
+		APP_KEY_VIBRATION + " text not null unique, " +
+		APP_KEY_DATE + " integer);";
 
 		public BuzzDBHelper(final Context context) {
 			super(context, DATABASE_NAME, null, DATABASE_VERSION);

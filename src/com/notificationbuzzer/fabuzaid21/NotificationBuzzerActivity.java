@@ -1,6 +1,9 @@
 package com.notificationbuzzer.fabuzaid21;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -29,7 +32,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import com.emilsjolander.components.stickylistheaders.StickyListHeadersListView;
 
 public class NotificationBuzzerActivity extends ListActivity implements OnItemClickListener, OnDismissListener,
-		OnCancelListener {
+		OnCancelListener, Comparator {
 
 	private static final String NOTIFICATION_BUZZER_PACKAGE = NotificationBuzzerActivity.class.getPackage().getName();
 	private static final String ACTIVITY_NAME = NotificationBuzzerActivity.class.getSimpleName();
@@ -53,8 +56,7 @@ public class NotificationBuzzerActivity extends ListActivity implements OnItemCl
 
 		// Delete Database--for when I update the schema/triggers and need to
 		// test
-		// boolean test =
-		// this.getApplicationContext().deleteDatabase(BuzzDB.DATABASE_NAME);
+		//boolean test =this.getApplicationContext().deleteDatabase(BuzzDB.DATABASE_NAME);
 
 		// open the database to find apps that have a vibration associated with
 		// them already.
@@ -80,6 +82,7 @@ public class NotificationBuzzerActivity extends ListActivity implements OnItemCl
 
 		stickyList.setAdapter(adapter);
 		stickyList.setOnItemClickListener(this);
+		
 	}
 
 	@Override
@@ -116,6 +119,7 @@ public class NotificationBuzzerActivity extends ListActivity implements OnItemCl
 
 			} else {
 				unassignedApps.add(rInfo);
+				Collections.sort(unassignedApps, this);
 			}
 		}
 	}
@@ -238,22 +242,32 @@ public class NotificationBuzzerActivity extends ListActivity implements OnItemCl
 			Log.d(TAG, "appName = " + appName);
 			values.put(BuzzDB.APP_KEY_NAME, appName);
 			values.put(BuzzDB.APP_KEY_VIBRATION, patternString);
+			values.put(BuzzDB.APP_KEY_DATE, Calendar.getInstance().getTimeInMillis());
 
 			final Cursor nameCheck = base.queryByPackageName(appName);
 			nameCheck.moveToFirst();
 			if (nameCheck.getCount() > 0) {
 				final long rowId = nameCheck.getLong(BuzzDB.INDEX_ROW_ID);
 				base.updateRow(BuzzDB.DATABASE_APP_TABLE, rowId, values);
+				updateLists(listPosition, true);
 			} else {
 				base.createRow(BuzzDB.DATABASE_APP_TABLE, values);
-				updateLists(listPosition);
+				updateLists(listPosition, false);
 			}
 		}
 	}
 
-	private void updateLists(final int position) {
-		assignedApps.add(unassignedApps.get(position - assignedApps.size()));
+	private void updateLists(final int position, boolean update) {
+		
+		if(!update)
+		{
+		assignedApps.add(0, unassignedApps.get(position - assignedApps.size()));
 		unassignedApps.remove(position - (assignedApps.size() - 1));
+		}
+		else
+		{
+			assignedApps.add(0, assignedApps.remove(position));
+		}
 		adapter.notifyDataSetChanged();
 	}
 
@@ -277,5 +291,19 @@ public class NotificationBuzzerActivity extends ListActivity implements OnItemCl
 	public void onCancel(final DialogInterface dialog) {
 		Log.d(TAG, "onCancel");
 		isCanceled = true;
+	}
+
+	@Override
+	public int compare(Object a, Object b) {
+		ResolveInfo first=(ResolveInfo)a;
+		ResolveInfo second=(ResolveInfo)b;
+		
+		PackageManager pm=getPackageManager();
+		
+		String firstLabel=(String) first.loadLabel(pm);
+		String secondLabel=(String) second.loadLabel(pm);
+		
+		return firstLabel.compareTo(secondLabel);
+	
 	}
 }
