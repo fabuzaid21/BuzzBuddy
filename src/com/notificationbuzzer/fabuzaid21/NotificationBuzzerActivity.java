@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Set;
 
 import android.app.AlertDialog;
-import android.app.ListActivity;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
@@ -24,14 +23,14 @@ import android.provider.Settings;
 import android.provider.Settings.SettingNotFoundException;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.Menu;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 
+import com.actionbarsherlock.app.SherlockListActivity;
 import com.emilsjolander.components.stickylistheaders.StickyListHeadersListView;
 
-public class NotificationBuzzerActivity extends ListActivity implements OnItemClickListener, OnDismissListener,
+public class NotificationBuzzerActivity extends SherlockListActivity implements OnItemClickListener, OnDismissListener,
 		OnCancelListener, Comparator {
 
 	private static final String NOTIFICATION_BUZZER_PACKAGE = NotificationBuzzerActivity.class.getPackage().getName();
@@ -82,7 +81,7 @@ public class NotificationBuzzerActivity extends ListActivity implements OnItemCl
 
 		stickyList.setAdapter(adapter);
 		stickyList.setOnItemClickListener(this);
-		
+
 	}
 
 	@Override
@@ -146,12 +145,6 @@ public class NotificationBuzzerActivity extends ListActivity implements OnItemCl
 	public void onDestroy() {
 		base.close();
 		super.onDestroy();
-	}
-
-	@Override
-	public boolean onCreateOptionsMenu(final Menu menu) {
-		// Don't inflate menu: menu's suck
-		return true;
 	}
 
 	public String getApplicationName(final PackageInfo info) {
@@ -258,7 +251,7 @@ public class NotificationBuzzerActivity extends ListActivity implements OnItemCl
 	}
 
 	private void updateLists(final int position, boolean update) {
-		
+
 		if(!update)
 		{
 		assignedApps.add(0, unassignedApps.get(position - assignedApps.size()));
@@ -297,13 +290,13 @@ public class NotificationBuzzerActivity extends ListActivity implements OnItemCl
 	public int compare(Object a, Object b) {
 		ResolveInfo first=(ResolveInfo)a;
 		ResolveInfo second=(ResolveInfo)b;
-		
+
 		PackageManager pm=getPackageManager();
-		
+
 		String firstLabel=(String) first.loadLabel(pm);
 		String secondLabel=(String) second.loadLabel(pm);
-		
+
 		return firstLabel.compareTo(secondLabel);
-	
+
 	}
 }

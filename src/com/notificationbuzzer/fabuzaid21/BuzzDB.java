@@ -45,8 +45,10 @@ public class BuzzDB {
 
 	/** Opens up a connection to the database. Do this before any operations. */
 	public void open() throws SQLException {
-		helper = new BuzzDBHelper(context);
-		database = helper.getWritableDatabase();
+		if (helper == null && database == null) {
+			helper = new BuzzDBHelper(context);
+			database = helper.getWritableDatabase();
+		}
 
 	}
 

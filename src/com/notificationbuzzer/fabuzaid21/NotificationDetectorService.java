@@ -14,14 +14,17 @@ public class NotificationDetectorService extends AccessibilityService {
 	private static final String TAG = NotificationDetectorService.class.getSimpleName();
 	private Vibrator vibrator;
 	private AudioManager audioManager;
+	private BuzzDB base;
 
 	@SuppressWarnings("deprecation")
 	@Override
 	public void onAccessibilityEvent(final AccessibilityEvent event) {
+		Log.d(TAG, "onAccessibilityEvent");
 		if (event.getEventType() == AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED) {
 			final String packageName = String.valueOf(event.getPackageName());
 			Log.d(TAG, packageName);
-			final BuzzDB base = ((NotificationBuzzerApp) getApplication()).getDatabase();
+
+			base.open();
 			final Cursor resultSet = base.queryByPackageName(packageName);
 			resultSet.moveToFirst();
 			if (resultSet.getCount() > 0) {
@@ -29,6 +32,7 @@ public class NotificationDetectorService extends AccessibilityService {
 				audioManager.setVibrateSetting(AudioManager.VIBRATE_TYPE_NOTIFICATION, AudioManager.VIBRATE_SETTING_OFF);
 				final String patternString = resultSet.getString(BuzzDB.APP_INDEX_VIBRATION);
 				final long[] vibrationPattern = deserializePattern(patternString);
+				Log.d(TAG, "playing vibration pattern!");
 				vibrator.vibrate(vibrationPattern, -1);
 				audioManager.setVibrateSetting(AudioManager.VIBRATE_TYPE_NOTIFICATION, vibrateSetting);
 			}
@@ -49,6 +53,7 @@ public class NotificationDetectorService extends AccessibilityService {
 		Log.d(TAG, "onServiceConnected");
 		vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 		audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+		base = ((NotificationBuzzerApp) getApplication()).getDatabase();
 
 		final AccessibilityServiceInfo info = new AccessibilityServiceInfo();
 		info.eventTypes = AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED;
@@ -60,5 +65,6 @@ public class NotificationDetectorService extends AccessibilityService {
 	@Override
 	public void onInterrupt() {
 		Log.d(TAG, "onInterrupt");
+		base.close();
 	}
 }
