@@ -15,9 +15,6 @@ public class BuzzDB {
 	static final String DATABASE_NAME = "buzzdb";
 	static final String DATABASE_APP_TABLE = "apptable";
 
-	private static final String APP_NAME = "APP";
-	private static final String VIBRATION = "VIBRATION";
-
 	static final String KEY_ROW_ID = "_id";// Android requires exactly
 	// this key name
 	static final int INDEX_ROW_ID = 0;
@@ -29,8 +26,8 @@ public class BuzzDB {
 	static final int APP_INDEX_NAME = 1;
 	static final String APP_KEY_VIBRATION = "active";
 	static final int APP_INDEX_VIBRATION = 2;
-	static final String APP_KEY_DATE="date";
-	static final int APP_INDEX_DATE=3;
+	static final String APP_KEY_DATE = "date";
+	static final int APP_INDEX_DATE = 3;
 
 	static final String[] APP_KEYS_ALL = { KEY_ROW_ID, APP_KEY_NAME, APP_KEY_VIBRATION, APP_KEY_DATE };
 
@@ -182,11 +179,9 @@ public class BuzzDB {
 
 	private static class BuzzDBHelper extends SQLiteOpenHelper {
 		// SQL text to create table (basically just string or integer)
-		private static final String DATABASE_CREATE_APP = "create table " + DATABASE_APP_TABLE + " (" + 
-		KEY_ROW_ID	+ " integer primary key autoincrement, " + 
-		APP_KEY_NAME + " text not null unique, " + 
-		APP_KEY_VIBRATION + " text not null unique, " +
-		APP_KEY_DATE + " integer);";
+		private static final String DATABASE_CREATE_APP = "create table " + DATABASE_APP_TABLE + " (" + KEY_ROW_ID
+				+ " integer primary key autoincrement, " + APP_KEY_NAME + " text not null unique, " + APP_KEY_VIBRATION
+				+ " text not null unique, " + APP_KEY_DATE + " integer);";
 
 		public BuzzDBHelper(final Context context) {
 			super(context, DATABASE_NAME, null, DATABASE_VERSION);

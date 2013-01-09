@@ -15,5 +15,6 @@
     <string name="cancel">Cancel</string>
     <string name="accept">Accept</string>
     <string name="record">Record</string>
+    <string name="playback">Playback</string>
 
 </resources>

@@ -20,6 +20,9 @@ public class NotificationDetectorService extends AccessibilityService {
 	@Override
 	public void onAccessibilityEvent(final AccessibilityEvent event) {
 		Log.d(TAG, "onAccessibilityEvent");
+		if (audioManager.getRingerMode() == AudioManager.RINGER_MODE_SILENT) {
+			return;
+		}
 		if (event.getEventType() == AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED) {
 			final String packageName = String.valueOf(event.getPackageName());
 			Log.d(TAG, packageName);

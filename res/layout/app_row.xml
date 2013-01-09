@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="?android:attr/listPreferredItemHeight"
@@ -10,15 +9,36 @@
         android:id="@+id/app_icon"
         android:layout_width="0dp"
         android:layout_height="48dp"
-        android:paddingTop="5dp"
-        android:paddingBottom="5dp"
+        android:layout_weight="0.3"
         android:adjustViewBounds="true"
-        android:layout_weight="0.3" android:contentDescription="@string/icon_image"/>
+        android:contentDescription="@string/icon_image"
+        android:paddingBottom="5dp"
+        android:paddingTop="5dp" />
 
     <TextView
         android:id="@+id/app_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
-        android:layout_weight="0.7" />
+        android:layout_weight="0.65"
+        android:ellipsize="marquee"
+        android:singleLine="true" />
+
+    <ImageView
+        android:id="@+id/playback"
+        android:layout_width="0dp"
+        android:layout_height="36dp"
+        android:layout_gravity="center_vertical"
+        android:layout_marginRight="5dp"
+        android:layout_weight="0.15"
+        android:adjustViewBounds="true"
+        android:background="@drawable/item_background_holo_dark"
+        android:contentDescription="@string/playback"
+        android:paddingBottom="5dp"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
+        android:paddingTop="5dp"
+        android:scaleType="centerInside"
+        android:src="@drawable/play" />
+
 </LinearLayout>

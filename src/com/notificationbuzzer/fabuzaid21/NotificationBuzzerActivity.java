@@ -24,6 +24,7 @@ import android.provider.Settings.SettingNotFoundException;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 
@@ -31,7 +32,7 @@ import com.actionbarsherlock.app.SherlockListActivity;
 import com.emilsjolander.components.stickylistheaders.StickyListHeadersListView;
 
 public class NotificationBuzzerActivity extends SherlockListActivity implements OnItemClickListener, OnDismissListener,
-		OnCancelListener, Comparator {
+		OnCancelListener, Comparator<ResolveInfo>, OnClickListener {
 
 	private static final String NOTIFICATION_BUZZER_PACKAGE = NotificationBuzzerActivity.class.getPackage().getName();
 	private static final String ACTIVITY_NAME = NotificationBuzzerActivity.class.getSimpleName();
@@ -55,7 +56,8 @@ public class NotificationBuzzerActivity extends SherlockListActivity implements 
 
 		// Delete Database--for when I update the schema/triggers and need to
 		// test
-		//boolean test =this.getApplicationContext().deleteDatabase(BuzzDB.DATABASE_NAME);
+		// boolean test
+		// =this.getApplicationContext().deleteDatabase(BuzzDB.DATABASE_NAME);
 
 		// open the database to find apps that have a vibration associated with
 		// them already.
@@ -250,15 +252,12 @@ public class NotificationBuzzerActivity extends SherlockListActivity implements 
 		}
 	}
 
-	private void updateLists(final int position, boolean update) {
+	private void updateLists(final int position, final boolean update) {
 
-		if(!update)
-		{
-		assignedApps.add(0, unassignedApps.get(position - assignedApps.size()));
-		unassignedApps.remove(position - (assignedApps.size() - 1));
-		}
-		else
-		{
+		if (!update) {
+			assignedApps.add(0, unassignedApps.get(position - assignedApps.size()));
+			unassignedApps.remove(position - (assignedApps.size() - 1));
+		} else {
 			assignedApps.add(0, assignedApps.remove(position));
 		}
 		adapter.notifyDataSetChanged();
@@ -287,16 +286,17 @@ public class NotificationBuzzerActivity extends SherlockListActivity implements 
 	}
 
 	@Override
-	public int compare(Object a, Object b) {
-		ResolveInfo first=(ResolveInfo)a;
-		ResolveInfo second=(ResolveInfo)b;
+	public int compare(final ResolveInfo first, final ResolveInfo second) {
+		final PackageManager pm = getPackageManager();
 
-		PackageManager pm=getPackageManager();
-
-		String firstLabel=(String) first.loadLabel(pm);
-		String secondLabel=(String) second.loadLabel(pm);
+		final String firstLabel = (String) first.loadLabel(pm);
+		final String secondLabel = (String) second.loadLabel(pm);
 
 		return firstLabel.compareTo(secondLabel);
+	}
 
+	@Override
+	public void onClick(final View v) {
+		Log.d(TAG, "playback clicked, position = " + v.getTag());
 	}
 }

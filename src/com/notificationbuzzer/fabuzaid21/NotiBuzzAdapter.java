@@ -4,7 +4,9 @@ import java.util.List;
 
 import android.content.Context;
 import android.content.pm.ResolveInfo;
+import android.graphics.Rect;
 import android.view.LayoutInflater;
+import android.view.TouchDelegate;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -51,8 +53,9 @@ public class NotiBuzzAdapter extends BaseAdapter implements StickyListHeadersAda
 	}
 
 	private static class ViewHolder {
-		protected ImageView icon;
-		protected TextView appName;
+		ImageView icon;
+		TextView appName;
+		ImageView playback;
 	}
 
 	@Override
@@ -65,6 +68,7 @@ public class NotiBuzzAdapter extends BaseAdapter implements StickyListHeadersAda
 			final ViewHolder viewHolder = new ViewHolder();
 			viewHolder.icon = (ImageView) view.findViewById(R.id.app_icon);
 			viewHolder.appName = (TextView) view.findViewById(R.id.app_name);
+			viewHolder.playback = (ImageView) view.findViewById(R.id.playback);
 			view.setTag(viewHolder);
 		} else {
 			view = convertView;
@@ -74,6 +78,28 @@ public class NotiBuzzAdapter extends BaseAdapter implements StickyListHeadersAda
 		final ResolveInfo item = getItemFromLists(position);
 		holder.icon.setImageDrawable(item.loadIcon(context.getPackageManager()));
 		holder.appName.setText(item.loadLabel(context.getPackageManager()));
+
+		if (position >= assignedApps.size()) {
+			holder.playback.setVisibility(View.GONE);
+		} else {
+			final ImageView playback = holder.playback;
+			playback.setVisibility(View.VISIBLE);
+			playback.setTag(position);
+			playback.setOnClickListener((NotificationBuzzerActivity) context);
+			parent.post(new Runnable() {
+				// Post in the parent's message queue to make sure the parent
+				// lays out its children before we call getHitRect()
+				@Override
+				public void run() {
+					final Rect r = new Rect();
+					playback.getHitRect(r);
+					r.top = 0;
+					r.bottom = parent.getHeight();
+					r.right += parent.getWidth() - playback.getRight();
+					parent.setTouchDelegate(new TouchDelegate(r, playback));
+				}
+			});
+		}
 
 		return view;
 	}
