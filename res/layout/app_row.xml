@@ -5,22 +5,30 @@
     android:background="@drawable/item_background_holo_dark"
     android:orientation="horizontal" >
 
+    <CheckBox
+        android:id="@+id/checkbox"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_weight="0.13"
+        android:checked="false"
+        android:focusable="false" />
+
     <ImageView
         android:id="@+id/app_icon"
         android:layout_width="0dp"
         android:layout_height="48dp"
-        android:layout_weight="0.3"
+        android:layout_weight="0.2"
         android:adjustViewBounds="true"
         android:contentDescription="@string/icon_image"
-        android:paddingBottom="5dp"
-        android:paddingTop="5dp" />
+        android:padding="5dp" />
 
     <TextView
         android:id="@+id/app_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
-        android:layout_weight="0.65"
+        android:layout_weight="0.52"
         android:ellipsize="marquee"
         android:singleLine="true" />
 

@@ -42,7 +42,7 @@ public class NotificationDetectorService extends AccessibilityService {
 		}
 	}
 
-	protected static long[] deserializePattern(final String patternString) {
+	static long[] deserializePattern(final String patternString) {
 		final String[] temp = patternString.split("-");
 		final long[] toReturn = new long[temp.length];
 		for (int i = 0; i < temp.length; ++i) {

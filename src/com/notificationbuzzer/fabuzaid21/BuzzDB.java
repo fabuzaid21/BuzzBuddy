@@ -86,7 +86,7 @@ public class BuzzDB {
 		return database.delete(tableName, KEY_ROW_ID + "=" + rowId, null) > 0;
 	}
 
-	public boolean deleteRow(final String tableName, final String whereClause) {
+	private boolean deleteRow(final String tableName, final String whereClause) {
 		return database.delete(tableName, whereClause, null) > 0;
 	}
 
@@ -168,7 +168,11 @@ public class BuzzDB {
 	}
 
 	public Cursor queryByPackageName(final String packageName) {
-		return query(BuzzDB.DATABASE_APP_TABLE, BuzzDB.APP_KEYS_ALL, BuzzDB.APP_KEY_NAME + "=\"" + packageName + "\"");
+		return query(DATABASE_APP_TABLE, APP_KEYS_ALL, APP_KEY_NAME + "=\"" + packageName + "\"");
+	}
+
+	public boolean deleteByPackageName(final String packageName) {
+		return deleteRow(DATABASE_APP_TABLE, APP_KEY_NAME + "=\"" + packageName + "\"");
 	}
 
 	// tableName is the proper table name. No manipulation necessary. Double

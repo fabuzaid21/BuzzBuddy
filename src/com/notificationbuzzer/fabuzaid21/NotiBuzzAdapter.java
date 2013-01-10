@@ -10,6 +10,7 @@ import android.view.TouchDelegate;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -53,6 +54,7 @@ public class NotiBuzzAdapter extends BaseAdapter implements StickyListHeadersAda
 	}
 
 	private static class ViewHolder {
+		CheckBox checkBox;
 		ImageView icon;
 		TextView appName;
 		ImageView playback;
@@ -66,6 +68,7 @@ public class NotiBuzzAdapter extends BaseAdapter implements StickyListHeadersAda
 		if (convertView == null) {
 			view = inflater.inflate(R.layout.app_row, null);
 			final ViewHolder viewHolder = new ViewHolder();
+			viewHolder.checkBox = (CheckBox) view.findViewById(R.id.checkbox);
 			viewHolder.icon = (ImageView) view.findViewById(R.id.app_icon);
 			viewHolder.appName = (TextView) view.findViewById(R.id.app_name);
 			viewHolder.playback = (ImageView) view.findViewById(R.id.playback);
@@ -79,11 +82,14 @@ public class NotiBuzzAdapter extends BaseAdapter implements StickyListHeadersAda
 		holder.icon.setImageDrawable(item.loadIcon(context.getPackageManager()));
 		holder.appName.setText(item.loadLabel(context.getPackageManager()));
 
+		final CheckBox checkBox = holder.checkBox;
+		final ImageView playback = holder.playback;
 		if (position >= assignedApps.size()) {
-			holder.playback.setVisibility(View.GONE);
+			playback.setVisibility(View.INVISIBLE);
+			checkBox.setVisibility(View.GONE);
 		} else {
-			final ImageView playback = holder.playback;
 			playback.setVisibility(View.VISIBLE);
+			checkBox.setVisibility(View.VISIBLE);
 			playback.setTag(position);
 			playback.setOnClickListener((NotificationBuzzerActivity) context);
 			parent.post(new Runnable() {
@@ -99,6 +105,10 @@ public class NotiBuzzAdapter extends BaseAdapter implements StickyListHeadersAda
 					parent.setTouchDelegate(new TouchDelegate(r, playback));
 				}
 			});
+
+			checkBox.setTag(position);
+			checkBox.setChecked(false);
+			checkBox.setOnCheckedChangeListener((NotificationBuzzerActivity) context);
 		}
 
 		return view;

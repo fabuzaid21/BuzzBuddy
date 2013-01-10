@@ -4,8 +4,11 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import android.app.AlertDialog;
@@ -30,17 +33,23 @@ import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.os.Vibrator;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 
 import com.actionbarsherlock.app.SherlockListActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
 import com.emilsjolander.components.stickylistheaders.StickyListHeadersListView;
 
 public class NotificationBuzzerActivity extends SherlockListActivity implements OnItemClickListener, OnDismissListener,
-		OnCancelListener, Comparator<ResolveInfo>, OnClickListener {
+		OnCancelListener, Comparator<ResolveInfo>, OnClickListener, OnCheckedChangeListener {
 
 	private static final String NOTIFICATION_BUZZER_PACKAGE = NotificationBuzzerActivity.class.getPackage().getName();
 	private static final String ACTIVITY_NAME = NotificationBuzzerActivity.class.getSimpleName();
 	private static final String TAG = ACTIVITY_NAME;
-	private static final String ACCESSIBILITY_SERVICE_NAME = "com.notificationbuzzer.fabuzaid21/com.notificationbuzzer.fabuzaid21.NotificationDetectorService";
+	private static final String ACCESSIBILITY_SERVICE_NAME = NOTIFICATION_BUZZER_PACKAGE + "/"
+			+ NOTIFICATION_BUZZER_PACKAGE + "." + NotificationDetectorService.class.getSimpleName();
 
 	private BuzzDB base;
 	private VibrationPatternDialog vibrationPatternDialog;
@@ -51,6 +60,7 @@ public class NotificationBuzzerActivity extends SherlockListActivity implements 
 	private List<ResolveInfo> assignedApps;
 	private NotiBuzzAdapter adapter;
 	private StickyListHeadersListView stickyList;
+	private Set<Integer> checkedItems;
 
 	@Override
 	protected void onCreate(final Bundle savedInstanceState) {
@@ -64,7 +74,6 @@ public class NotificationBuzzerActivity extends SherlockListActivity implements 
 
 		// open the database to find apps that have a vibration associated with
 		// them already.
-
 		base = ((NotificationBuzzerApp) getApplication()).getDatabase();
 		base.open();
 
@@ -76,7 +85,7 @@ public class NotificationBuzzerActivity extends SherlockListActivity implements 
 		final Intent intent = new Intent(Intent.ACTION_MAIN, null);
 		intent.addCategory(Intent.CATEGORY_LAUNCHER);
 		final List<ResolveInfo> launcherApps = pm.queryIntentActivities(intent, PackageManager.PERMISSION_GRANTED);
-		final List<ResolveInfo> candidateApps = filterSystemApps(launcherApps);
+		final Map<String, ResolveInfo> candidateApps = filterSystemApps(launcherApps);
 
 		unassignedApps = new ArrayList<ResolveInfo>();
 		assignedApps = new ArrayList<ResolveInfo>();
@@ -86,7 +95,53 @@ public class NotificationBuzzerActivity extends SherlockListActivity implements 
 
 		stickyList.setAdapter(adapter);
 		stickyList.setOnItemClickListener(this);
+	}
 
+	@Override
+	public boolean onCreateOptionsMenu(final Menu menu) {
+		Log.d(TAG, "onCreateOptionsMenu");
+		if (getCheckedItemsSize() > 0) {
+			Log.d(TAG, "inflating");
+			final MenuInflater inflater = getSupportMenuInflater();
+			inflater.inflate(R.menu.activity_notification_buzzer, menu);
+		}
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(final MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.clear_selections:
+			clearChecks();
+			return true;
+		case R.id.delete_selections:
+			deleteSelections();
+			return true;
+
+		}
+		return super.onOptionsItemSelected(item);
+	}
+
+	private void clearChecks() {
+		checkedItems.clear();
+		// why call notifyDataSetChanged? the data hasn't changed, but we're
+		// asking for the list to be re-rendered anyways. Which means that the
+		// check boxes will all be unchecked (and we make sue they're unchecked
+		// when getView is called)
+		adapter.notifyDataSetChanged();
+		supportInvalidateOptionsMenu();
+	}
+
+	private void deleteSelections() {
+		final List<ResolveInfo> toDelete = new LinkedList<ResolveInfo>();
+		for (final Integer index : checkedItems) {
+			toDelete.add(deleteFromRecordedApps(index));
+		}
+		assignedApps.removeAll(toDelete);
+		checkedItems.clear();
+		Collections.sort(unassignedApps, this);
+		adapter.notifyDataSetChanged();
+		supportInvalidateOptionsMenu();
 	}
 
 	@Override
@@ -104,43 +159,33 @@ public class NotificationBuzzerActivity extends SherlockListActivity implements 
 		}
 	}
 
-	private void sortAppAssignment(final List<ResolveInfo> allApps, final List<ResolveInfo> unassignedApps,
+	private void sortAppAssignment(final Map<String, ResolveInfo> allApps, final List<ResolveInfo> unassignedApps,
 			final List<ResolveInfo> assignedApps, final PackageManager pm) {
-
-		final Set<String> appsInDatabase = new HashSet<String>();
 		final Cursor baseApps = base.queryAll(BuzzDB.DATABASE_APP_TABLE);
 		baseApps.moveToFirst();
 		while (!baseApps.isAfterLast()) {
-			final String appName = baseApps.getString(BuzzDB.APP_INDEX_NAME);
-			Log.d(TAG, "first column = " + appName + ", second column = " + baseApps.getString(2));
-			appsInDatabase.add(appName);
+			final String packageName = baseApps.getString(BuzzDB.APP_INDEX_NAME);
+			Log.d(TAG, "first column = " + packageName + ", second column = " + baseApps.getString(BuzzDB.APP_INDEX_VIBRATION));
+			assignedApps.add(allApps.remove(packageName));
 			baseApps.moveToNext();
 		}
-
-		for (final ResolveInfo rInfo : allApps) {
-			if (appsInDatabase.contains(rInfo.activityInfo.applicationInfo.packageName)) {
-				assignedApps.add(rInfo);
-
-			} else {
-				unassignedApps.add(rInfo);
-				Collections.sort(unassignedApps, this);
-			}
-		}
+		unassignedApps.addAll(allApps.values());
+		Collections.sort(unassignedApps, this);
 	}
 
-	private static List<ResolveInfo> filterSystemApps(final List<ResolveInfo> allApps) {
-		final List<ResolveInfo> notificationApps = new ArrayList<ResolveInfo>();
-		for (final ResolveInfo info : allApps) {
+	private static Map<String, ResolveInfo> filterSystemApps(final List<ResolveInfo> allApps) {
+		final Map<String, ResolveInfo> notificationApps = new HashMap<String, ResolveInfo>();
+		for (final ResolveInfo rInfo : allApps) {
 
-			final String packageName = info.activityInfo.applicationInfo.packageName;
+			final String packageName = rInfo.activityInfo.applicationInfo.packageName;
 			Log.d(TAG, "" + packageName);
-			if (info.activityInfo.applicationInfo.sourceDir.startsWith("/data/app")
+			if (rInfo.activityInfo.applicationInfo.sourceDir.startsWith("/data/app")
 					|| packageName.matches("(com.android.(mms|contacts|calendar|email)|com.google.android.*)")) {
 
 				if (packageName.equals(NOTIFICATION_BUZZER_PACKAGE)) {
 					continue;
 				}
-				notificationApps.add(info);
+				notificationApps.put(packageName, rInfo);
 			}
 		}
 		return notificationApps;
@@ -247,15 +292,15 @@ public class NotificationBuzzerActivity extends SherlockListActivity implements 
 			if (nameCheck.getCount() > 0) {
 				final long rowId = nameCheck.getLong(BuzzDB.INDEX_ROW_ID);
 				base.updateRow(BuzzDB.DATABASE_APP_TABLE, rowId, values);
-				updateLists(listPosition, true);
+				updateOrAddToRecordedApps(listPosition, true);
 			} else {
 				base.createRow(BuzzDB.DATABASE_APP_TABLE, values);
-				updateLists(listPosition, false);
+				updateOrAddToRecordedApps(listPosition, false);
 			}
 		}
 	}
 
-	private void updateLists(final int position, final boolean update) {
+	private void updateOrAddToRecordedApps(final int position, final boolean update) {
 
 		if (!update) {
 			assignedApps.add(0, unassignedApps.get(position - assignedApps.size()));
@@ -264,6 +309,13 @@ public class NotificationBuzzerActivity extends SherlockListActivity implements 
 			assignedApps.add(0, assignedApps.remove(position));
 		}
 		adapter.notifyDataSetChanged();
+	}
+
+	private ResolveInfo deleteFromRecordedApps(final int position) {
+		final ResolveInfo removed = assignedApps.get(position);
+		base.deleteByPackageName(removed.activityInfo.applicationInfo.packageName);
+		unassignedApps.add(removed);
+		return removed;
 	}
 
 	private String getAppNameForPosition(final int position) {
@@ -301,14 +353,14 @@ public class NotificationBuzzerActivity extends SherlockListActivity implements 
 	@Override
 	public void onClick(final View v) {
 		Log.d(TAG, "playback clicked, position = " + v.getTag());
-		
+
 		final Vibrator vibrator;
-		
+
 		vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-		
+
 		int index=(Integer)v.getTag();
 		String patternString="0";
-		
+
 		ResolveInfo item=assignedApps.get(index);
 		String pName=item.activityInfo.applicationInfo.packageName;
 		Cursor entry=base.query(BuzzDB.DATABASE_APP_TABLE, BuzzDB.APP_KEYS_ALL, BuzzDB.APP_KEY_NAME+"=\""+pName+"\"");
@@ -317,12 +369,43 @@ public class NotificationBuzzerActivity extends SherlockListActivity implements 
 		{
 			patternString=entry.getString(BuzzDB.APP_INDEX_VIBRATION);
 		}
-		
-		
+
+
 		final long[] vibrationPattern = NotificationDetectorService.deserializePattern(patternString);
 		Log.d(TAG, "playing vibration pattern!");
 		vibrator.vibrate(vibrationPattern, -1);
-	
-		
+
+	}
+
+	@Override
+	public void onCheckedChanged(final CompoundButton buttonView, final boolean isChecked) {
+		final Set<Integer> checked = getCheckedItems();
+		if (isChecked) {
+			Log.d(TAG, "checkbox checked, position = " + buttonView.getTag());
+			checked.add((Integer) buttonView.getTag());
+			if (checked.size() == 1) {
+				supportInvalidateOptionsMenu();
+			}
+		} else {
+			Log.d(TAG, "checkbox unchecked, position = " + buttonView.getTag());
+			checked.remove(buttonView.getTag());
+			if (checked.size() == 0) {
+				supportInvalidateOptionsMenu();
+			}
+		}
+	}
+
+	private Set<Integer> getCheckedItems() {
+		if (checkedItems == null) {
+			checkedItems = new HashSet<Integer>();
+		}
+		return checkedItems;
+	}
+
+	private int getCheckedItemsSize() {
+		if (checkedItems == null) {
+			return 0;
+		}
+		return checkedItems.size();
 	}
 }
