@@ -5,12 +5,13 @@
     android:background="@drawable/item_background_holo_dark"
     android:orientation="horizontal" >
 
-    <CheckBox
+    <com.notificationbuzzer.fabuzaid21.EasyTargetCheckBox
         android:id="@+id/checkbox"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_weight="0.15"
+        android:layout_marginLeft="5dp"
         android:layout_gravity="center_vertical"
-        android:layout_weight="0.13"
         android:checked="false"
         android:focusable="false" />
 
@@ -28,7 +29,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
-        android:layout_weight="0.52"
+        android:layout_weight="0.5"
         android:ellipsize="marquee"
         android:singleLine="true" />
 

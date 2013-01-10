@@ -1,6 +1,8 @@
 package com.notificationbuzzer.fabuzaid21;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import android.content.Context;
 import android.content.pm.ResolveInfo;
@@ -21,14 +23,15 @@ public class NotiBuzzAdapter extends BaseAdapter implements StickyListHeadersAda
 	private final List<ResolveInfo> assignedApps;
 	private final List<ResolveInfo> unassignedApps;
 	private final LayoutInflater inflater;
-	Context context;
+	private final NotificationBuzzerActivity context;
+	private Set<Integer> checkedItems;
 
 	public NotiBuzzAdapter(final Context context, final List<ResolveInfo> assignedApps,
 			final List<ResolveInfo> unassignedApps) {
 		inflater = LayoutInflater.from(context);
 		this.assignedApps = assignedApps;
 		this.unassignedApps = unassignedApps;
-		this.context = context;
+		this.context = (NotificationBuzzerActivity) context;
 	}
 
 	@Override
@@ -85,13 +88,16 @@ public class NotiBuzzAdapter extends BaseAdapter implements StickyListHeadersAda
 		final CheckBox checkBox = holder.checkBox;
 		final ImageView playback = holder.playback;
 		if (position >= assignedApps.size()) {
-			playback.setVisibility(View.INVISIBLE);
+			playback.setVisibility(View.GONE);
 			checkBox.setVisibility(View.GONE);
 		} else {
 			playback.setVisibility(View.VISIBLE);
 			checkBox.setVisibility(View.VISIBLE);
 			playback.setTag(position);
-			playback.setOnClickListener((NotificationBuzzerActivity) context);
+			playback.setOnClickListener(context);
+			checkBox.setTag(position);
+			checkBox.setChecked(checkedItems != null && checkedItems.contains(position));
+			checkBox.setOnCheckedChangeListener(context);
 			parent.post(new Runnable() {
 				// Post in the parent's message queue to make sure the parent
 				// lays out its children before we call getHitRect()
@@ -106,9 +112,6 @@ public class NotiBuzzAdapter extends BaseAdapter implements StickyListHeadersAda
 				}
 			});
 
-			checkBox.setTag(position);
-			checkBox.setChecked(false);
-			checkBox.setOnCheckedChangeListener((NotificationBuzzerActivity) context);
 		}
 
 		return view;
@@ -153,4 +156,17 @@ public class NotiBuzzAdapter extends BaseAdapter implements StickyListHeadersAda
 		TextView text;
 	}
 
+	public Set<Integer> getCheckedItems() {
+		if (checkedItems == null) {
+			checkedItems = new HashSet<Integer>();
+		}
+		return checkedItems;
+	}
+
+	public int getCheckedItemsSize() {
+		if (checkedItems == null) {
+			return 0;
+		}
+		return checkedItems.size();
+	}
 }

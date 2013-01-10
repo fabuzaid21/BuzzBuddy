@@ -5,7 +5,6 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +31,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.os.Vibrator;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 
@@ -60,7 +58,6 @@ public class NotificationBuzzerActivity extends SherlockListActivity implements 
 	private List<ResolveInfo> assignedApps;
 	private NotiBuzzAdapter adapter;
 	private StickyListHeadersListView stickyList;
-	private Set<Integer> checkedItems;
 
 	@Override
 	protected void onCreate(final Bundle savedInstanceState) {
@@ -100,7 +97,7 @@ public class NotificationBuzzerActivity extends SherlockListActivity implements 
 	@Override
 	public boolean onCreateOptionsMenu(final Menu menu) {
 		Log.d(TAG, "onCreateOptionsMenu");
-		if (getCheckedItemsSize() > 0) {
+		if (adapter.getCheckedItemsSize() > 0) {
 			Log.d(TAG, "inflating");
 			final MenuInflater inflater = getSupportMenuInflater();
 			inflater.inflate(R.menu.activity_notification_buzzer, menu);
@@ -123,7 +120,7 @@ public class NotificationBuzzerActivity extends SherlockListActivity implements 
 	}
 
 	private void clearChecks() {
-		checkedItems.clear();
+		adapter.getCheckedItems().clear();
 		// why call notifyDataSetChanged? the data hasn't changed, but we're
 		// asking for the list to be re-rendered anyways. Which means that the
 		// check boxes will all be unchecked (and we make sue they're unchecked
@@ -134,12 +131,13 @@ public class NotificationBuzzerActivity extends SherlockListActivity implements 
 
 	private void deleteSelections() {
 		final List<ResolveInfo> toDelete = new LinkedList<ResolveInfo>();
+		final Set<Integer> checkedItems = adapter.getCheckedItems();
 		for (final Integer index : checkedItems) {
 			toDelete.add(deleteFromRecordedApps(index));
 		}
 		assignedApps.removeAll(toDelete);
-		checkedItems.clear();
 		Collections.sort(unassignedApps, this);
+		checkedItems.clear();
 		adapter.notifyDataSetChanged();
 		supportInvalidateOptionsMenu();
 	}
@@ -165,7 +163,9 @@ public class NotificationBuzzerActivity extends SherlockListActivity implements 
 		baseApps.moveToFirst();
 		while (!baseApps.isAfterLast()) {
 			final String packageName = baseApps.getString(BuzzDB.APP_INDEX_NAME);
-			Log.d(TAG, "first column = " + packageName + ", second column = " + baseApps.getString(BuzzDB.APP_INDEX_VIBRATION));
+			Log.d(TAG,
+					"first column = " + packageName + ", second column = "
+							+ baseApps.getString(BuzzDB.APP_INDEX_VIBRATION));
 			assignedApps.add(allApps.remove(packageName));
 			baseApps.moveToNext();
 		}
@@ -326,7 +326,7 @@ public class NotificationBuzzerActivity extends SherlockListActivity implements 
 		}
 	}
 
-	private String serializePattern(final Long[] finalPattern) {
+	private static String serializePattern(final Long[] finalPattern) {
 		String toReturn = "" + finalPattern[0];
 		for (int i = 1; i < finalPattern.length; ++i) {
 			toReturn += "-" + finalPattern[i];
@@ -358,28 +358,25 @@ public class NotificationBuzzerActivity extends SherlockListActivity implements 
 
 		vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 
-		int index=(Integer)v.getTag();
-		String patternString="0";
+		final int index = (Integer) v.getTag();
+		String patternString = "0";
 
-		ResolveInfo item=assignedApps.get(index);
-		String pName=item.activityInfo.applicationInfo.packageName;
-		Cursor entry=base.query(BuzzDB.DATABASE_APP_TABLE, BuzzDB.APP_KEYS_ALL, BuzzDB.APP_KEY_NAME+"=\""+pName+"\"");
+		final ResolveInfo item = assignedApps.get(index);
+		final String pName = item.activityInfo.applicationInfo.packageName;
+		final Cursor entry = base.queryByPackageName(pName);
 		entry.moveToFirst();
-		if(entry.getCount()>0)
-		{
-			patternString=entry.getString(BuzzDB.APP_INDEX_VIBRATION);
+		if (entry.getCount() > 0) {
+			patternString = entry.getString(BuzzDB.APP_INDEX_VIBRATION);
 		}
-
 
 		final long[] vibrationPattern = NotificationDetectorService.deserializePattern(patternString);
 		Log.d(TAG, "playing vibration pattern!");
 		vibrator.vibrate(vibrationPattern, -1);
-
 	}
 
 	@Override
 	public void onCheckedChanged(final CompoundButton buttonView, final boolean isChecked) {
-		final Set<Integer> checked = getCheckedItems();
+		final Set<Integer> checked = adapter.getCheckedItems();
 		if (isChecked) {
 			Log.d(TAG, "checkbox checked, position = " + buttonView.getTag());
 			checked.add((Integer) buttonView.getTag());
@@ -393,19 +390,5 @@ public class NotificationBuzzerActivity extends SherlockListActivity implements 
 				supportInvalidateOptionsMenu();
 			}
 		}
-	}
-
-	private Set<Integer> getCheckedItems() {
-		if (checkedItems == null) {
-			checkedItems = new HashSet<Integer>();
-		}
-		return checkedItems;
-	}
-
-	private int getCheckedItemsSize() {
-		if (checkedItems == null) {
-			return 0;
-		}
-		return checkedItems.size();
 	}
 }
