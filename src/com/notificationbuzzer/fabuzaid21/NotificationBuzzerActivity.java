@@ -10,6 +10,7 @@ import java.util.Set;
 
 import android.app.AlertDialog;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.DialogInterface.OnDismissListener;
@@ -19,6 +20,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.provider.Settings;
 import android.provider.Settings.SettingNotFoundException;
 import android.text.TextUtils;
@@ -27,6 +29,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.os.Vibrator;
 
 import com.actionbarsherlock.app.SherlockListActivity;
 import com.emilsjolander.components.stickylistheaders.StickyListHeadersListView;
@@ -298,5 +301,28 @@ public class NotificationBuzzerActivity extends SherlockListActivity implements 
 	@Override
 	public void onClick(final View v) {
 		Log.d(TAG, "playback clicked, position = " + v.getTag());
+		
+		final Vibrator vibrator;
+		
+		vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+		
+		int index=(Integer)v.getTag();
+		String patternString="0";
+		
+		ResolveInfo item=assignedApps.get(index);
+		String pName=item.activityInfo.applicationInfo.packageName;
+		Cursor entry=base.query(BuzzDB.DATABASE_APP_TABLE, BuzzDB.APP_KEYS_ALL, BuzzDB.APP_KEY_NAME+"=\""+pName+"\"");
+		entry.moveToFirst();
+		if(entry.getCount()>0)
+		{
+			patternString=entry.getString(BuzzDB.APP_INDEX_VIBRATION);
+		}
+		
+		
+		final long[] vibrationPattern = NotificationDetectorService.deserializePattern(patternString);
+		Log.d(TAG, "playing vibration pattern!");
+		vibrator.vibrate(vibrationPattern, -1);
+	
+		
 	}
 }
