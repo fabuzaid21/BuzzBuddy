@@ -116,6 +116,7 @@ public class NotificationBuzzerActivity extends SherlockListActivity implements 
 			return true;
 
 		}
+		closeOptionsMenu();
 		return super.onOptionsItemSelected(item);
 	}
 
