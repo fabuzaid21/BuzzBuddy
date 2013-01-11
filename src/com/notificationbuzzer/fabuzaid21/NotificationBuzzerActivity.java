@@ -356,6 +356,13 @@ public class NotificationBuzzerActivity extends SherlockListActivity implements 
 
 	@Override
 	public void onClick(final View v) {
+		if (v.isSelected()) {
+			Log.d(TAG, "stop playback clicked, position = " + v.getTag());
+			final Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+			vibrator.cancel();
+			adapter.enabledPlaybackButtons();
+			return;
+		}
 		Log.d(TAG, "playback clicked, position = " + v.getTag());
 
 		final Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);

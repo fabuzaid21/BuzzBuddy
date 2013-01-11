@@ -182,6 +182,15 @@ public class NotiBuzzAdapter extends BaseAdapter implements StickyListHeadersAda
 				continue;
 			}
 			if (i == index) {
+				currentButton.setSelected(true);
+				currentButton.postDelayed(new Runnable() {
+
+					@Override
+					public void run() {
+						currentButton.setSelected(false);
+					}
+
+				}, delay);
 				continue;
 			}
 			currentButton.setEnabled(false);
@@ -202,6 +211,7 @@ public class NotiBuzzAdapter extends BaseAdapter implements StickyListHeadersAda
 			if (currentButton == null) {
 				continue;
 			}
+			currentButton.setSelected(false);
 			currentButton.setEnabled(true);
 		}
 	}
