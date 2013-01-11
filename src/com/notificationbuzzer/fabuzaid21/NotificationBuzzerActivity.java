@@ -257,6 +257,9 @@ public class NotificationBuzzerActivity extends SherlockListActivity implements 
 
 	@Override
 	public void onItemClick(final AdapterView<?> parent, final View view, final int position, final long id) {
+		final Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+		vibrator.cancel();
+		adapter.enabledPlaybackButtons();
 		Log.d(TAG, "postion = " + position);
 		listPosition = position;
 		if (vibrationPatternDialog == null) {
@@ -355,11 +358,10 @@ public class NotificationBuzzerActivity extends SherlockListActivity implements 
 	public void onClick(final View v) {
 		Log.d(TAG, "playback clicked, position = " + v.getTag());
 
-		final Vibrator vibrator;
-
-		vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+		final Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 
 		final int index = (Integer) v.getTag();
+
 		String patternString = "0";
 
 		final ResolveInfo item = assignedApps.get(index);
@@ -372,7 +374,17 @@ public class NotificationBuzzerActivity extends SherlockListActivity implements 
 
 		final long[] vibrationPattern = NotificationDetectorService.deserializePattern(patternString);
 		Log.d(TAG, "playing vibration pattern!");
+		final long delay = totalPatternTime(vibrationPattern);
+		adapter.disableOtherPlaybackButtonsForTime(index, delay);
 		vibrator.vibrate(vibrationPattern, -1);
+	}
+
+	private static long totalPatternTime(final long[] pattern) {
+		long toReturn = 0;
+		for (final long elem : pattern) {
+			toReturn += elem;
+		}
+		return toReturn;
 	}
 
 	@Override

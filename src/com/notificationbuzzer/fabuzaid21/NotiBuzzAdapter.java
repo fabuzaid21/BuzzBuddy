@@ -7,6 +7,7 @@ import java.util.Set;
 import android.content.Context;
 import android.content.pm.ResolveInfo;
 import android.graphics.Rect;
+import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.TouchDelegate;
 import android.view.View;
@@ -25,6 +26,7 @@ public class NotiBuzzAdapter extends BaseAdapter implements StickyListHeadersAda
 	private final LayoutInflater inflater;
 	private final NotificationBuzzerActivity context;
 	private Set<Integer> checkedItems;
+	private final SparseArray<ImageView> playbackViews;
 
 	public NotiBuzzAdapter(final Context context, final List<ResolveInfo> assignedApps,
 			final List<ResolveInfo> unassignedApps) {
@@ -32,6 +34,7 @@ public class NotiBuzzAdapter extends BaseAdapter implements StickyListHeadersAda
 		this.assignedApps = assignedApps;
 		this.unassignedApps = unassignedApps;
 		this.context = (NotificationBuzzerActivity) context;
+		playbackViews = new SparseArray<ImageView>();
 	}
 
 	@Override
@@ -112,6 +115,8 @@ public class NotiBuzzAdapter extends BaseAdapter implements StickyListHeadersAda
 				}
 			});
 
+			playbackViews.append(position, playback);
+
 		}
 
 		return view;
@@ -168,5 +173,36 @@ public class NotiBuzzAdapter extends BaseAdapter implements StickyListHeadersAda
 			return 0;
 		}
 		return checkedItems.size();
+	}
+
+	public void disableOtherPlaybackButtonsForTime(final int index, final long delay) {
+		for (int i = 0; i < playbackViews.size(); ++i) {
+			final ImageView currentButton = playbackViews.get(i);
+			if (currentButton == null) {
+				continue;
+			}
+			if (i == index) {
+				continue;
+			}
+			currentButton.setEnabled(false);
+			currentButton.postDelayed(new Runnable() {
+
+				@Override
+				public void run() {
+					currentButton.setEnabled(true);
+				}
+
+			}, delay);
+		}
+	}
+
+	public void enabledPlaybackButtons() {
+		for (int i = 0; i < playbackViews.size(); ++i) {
+			final ImageView currentButton = playbackViews.get(i);
+			if (currentButton == null) {
+				continue;
+			}
+			currentButton.setEnabled(true);
+		}
 	}
 }

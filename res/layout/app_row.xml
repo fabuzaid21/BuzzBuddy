@@ -48,6 +48,6 @@
         android:paddingRight="5dp"
         android:paddingTop="5dp"
         android:scaleType="centerInside"
-        android:src="@drawable/play" />
+        android:src="@drawable/playback" />
 
 </LinearLayout>
