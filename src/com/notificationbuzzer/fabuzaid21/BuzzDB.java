@@ -51,7 +51,9 @@ public class BuzzDB {
 
 	/** Closes the database connection. Operations are not valid after this. */
 	public void close() {
-		helper.close();
+		if (helper != null) {
+			helper.close();
+		}
 		helper = null;
 		database = null;
 	}
