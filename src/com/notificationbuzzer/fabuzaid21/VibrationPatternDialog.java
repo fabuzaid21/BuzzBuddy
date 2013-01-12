@@ -3,7 +3,6 @@ package com.notificationbuzzer.fabuzaid21;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.res.Resources;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.util.Log;
@@ -13,15 +12,15 @@ import android.view.View.OnClickListener;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-public class VibrationPatternDialog extends Dialog implements OnClickListener {
+import com.notificationbuzzer.fabuzaid21.CountdownTimer.CountdownCallback;
 
+public class VibrationPatternDialog extends Dialog implements OnClickListener, CountdownCallback {
+
+	private static final int TEN_SECONDS = 10;
 	private static final String TAG = VibrationPatternDialog.class.getSimpleName();
-	private static final int STOP_ID = 0x10;
 
 	private ImageButton record;
 	private final Resources res;
-	private Drawable stopDrawable = null;
-	private Drawable recordDrawable = null;
 
 	private static final long[] PATTERN = { 0, 5 };
 
@@ -32,6 +31,8 @@ public class VibrationPatternDialog extends Dialog implements OnClickListener {
 	private final String recordingText;
 	private VibrationPattern vibrationPattern;
 	private ImageButton accept;
+	private final CountdownTimer timer;
+	private TextView timerText;
 
 	@Override
 	protected void onCreate(final Bundle savedInstanceState) {
@@ -47,6 +48,7 @@ public class VibrationPatternDialog extends Dialog implements OnClickListener {
 		record.setOnClickListener(this);
 
 		instructions = (TextView) findViewById(R.id.vibration_instructions);
+		timerText = (TextView) findViewById(R.id.timer);
 	}
 
 	@Override
@@ -58,10 +60,13 @@ public class VibrationPatternDialog extends Dialog implements OnClickListener {
 
 	private void setInitialMode() {
 		instructions.setText(generalInstructions);
-		record.setImageDrawable(getRecordDrawable());
 		isRecording = false;
 		setAcceptButtonEnabled(vibrationPattern.isPatternPresent());
-		record.setId(R.id.record);
+		record.setSelected(true);
+		timerText.setSelected(true);
+		timerText.setText("0:" + TEN_SECONDS);
+		timer.stop();
+		timer.reset();
 	}
 
 	@Override
@@ -82,6 +87,8 @@ public class VibrationPatternDialog extends Dialog implements OnClickListener {
 		generalInstructions = res.getString(R.string.vibration_pattern_explanation);
 		recordingText = res.getString(R.string.vibration_pattern_tapping);
 		vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+		timer = new CountdownTimer(TEN_SECONDS);
+		timer.setCountdownCallback(this);
 
 	}
 
@@ -101,12 +108,14 @@ public class VibrationPatternDialog extends Dialog implements OnClickListener {
 			dismiss();
 			break;
 		case R.id.record:
-			Log.w(TAG, "recording");
-			setRecordingMode();
-			record.setId(STOP_ID);
-			vibrationPattern.initializePattern();
-			break;
-		case STOP_ID:
+			if (v.isSelected()) {
+				Log.w(TAG, "recording");
+				setRecordingMode();
+				record.setSelected(false);
+				timerText.setSelected(false);
+				vibrationPattern.initializePattern();
+				break;
+			}
 			Log.w(TAG, "stopping");
 			setInitialMode();
 			break;
@@ -116,23 +125,9 @@ public class VibrationPatternDialog extends Dialog implements OnClickListener {
 
 	private void setRecordingMode() {
 		instructions.setText(recordingText);
-		record.setImageDrawable(getStopDrawable());
 		setAcceptButtonEnabled(false);
 		isRecording = true;
-	}
 
-	private Drawable getStopDrawable() {
-		if (stopDrawable == null) {
-			stopDrawable = res.getDrawable(R.drawable.stop);
-		}
-		return stopDrawable;
-	}
-
-	private Drawable getRecordDrawable() {
-		if (recordDrawable == null) {
-			recordDrawable = res.getDrawable(R.drawable.record);
-		}
-		return recordDrawable;
 	}
 
 	@Override
@@ -141,6 +136,9 @@ public class VibrationPatternDialog extends Dialog implements OnClickListener {
 			Log.d(TAG, "onTouchEvent");
 			switch (e.getAction()) {
 			case MotionEvent.ACTION_DOWN:
+				if (!timer.isRunning()) {
+					timer.start();
+				}
 				Log.d(TAG, "Action down");
 				vibrator.vibrate(PATTERN, 0);
 				vibrationPattern.updateLastTouched();
@@ -156,4 +154,26 @@ public class VibrationPatternDialog extends Dialog implements OnClickListener {
 		return false;
 	}
 
+	@Override
+	public void onTimerStop() {
+		if (isRecording) {
+			record.performClick();
+		}
+
+	}
+
+	@Override
+	public void onDecrement(final int time) {
+		if (time < 10) {
+			timerText.setText("0:0" + time);
+			return;
+		}
+		timerText.setText("0:" + time);
+
+	}
+
+	@Override
+	public void onTimerStart() {
+
+	}
 }
