@@ -351,7 +351,7 @@ public class NotificationBuzzerActivity extends SherlockListActivity implements 
 		final String firstLabel = (String) first.loadLabel(pm);
 		final String secondLabel = (String) second.loadLabel(pm);
 
-		return firstLabel.compareTo(secondLabel);
+		return firstLabel.compareToIgnoreCase(secondLabel);
 	}
 
 	@Override
