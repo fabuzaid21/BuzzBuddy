@@ -1,6 +1,7 @@
 * text eol=lf
 *.png binary
 *.jar binary
+*.ttf binary
 ActionBarSherlock/src/com/actionbarsherlock/app/*.java -text
 ActionBarSherlock/src/com/actionbarsherlock/view/*.java -text
 ActionBarSherlock/src/com/actionbarsherlock/*.java -text
