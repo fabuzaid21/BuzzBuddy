@@ -1,12 +1,11 @@
-<?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/vibration_pattern"
     android:layout_width="wrap_content"
-    android:layout_height="240dp"
+    android:layout_height="200dp"
     android:layout_gravity="center"
     android:layout_marginBottom="60dp"
-    android:layout_marginLeft="18dp"
-    android:layout_marginRight="18dp"
+    android:layout_marginLeft="15dp"
+    android:layout_marginRight="15dp"
     android:layout_marginTop="60dp"
     android:background="@drawable/dialog_background"
     android:orientation="vertical" >
@@ -19,11 +18,32 @@
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
         android:layout_marginTop="10dp"
-        android:gravity="center_horizontal|top"
-        android:paddingBottom="5dp"
-        android:text="@string/vibration_pattern_tapping"
+        android:gravity="center_horizontal"
+        android:text="@string/vibration_pattern_explanation"
         android:textColor="@color/holo_blue_dark" >
     </TextView>
+
+    <ImageButton
+        android:id="@+id/record"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/timer"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/item_background_holo_dark"
+        android:contentDescription="@string/record"
+        android:src="@drawable/record_or_stop" />
+
+    <com.notificationbuzzer.fabuzaid21.TimerTextView
+        android:id="@+id/timer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/bottomPanel"
+        android:layout_marginBottom="1dp"
+        android:gravity="center_horizontal"
+        android:text="0:01"
+        android:textColor="@color/timer_text"
+        android:textSize="19sp" />
 
     <RelativeLayout
         android:id="@+id/bottomPanel"
@@ -76,28 +96,5 @@
             android:contentDescription="@string/accept"
             android:src="@drawable/accept" />
     </RelativeLayout>
-
-    <ImageButton
-        android:id="@+id/record"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@id/bottomPanel"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="10dp"
-        android:background="@drawable/item_background_holo_dark"
-        android:contentDescription="@string/record"
-        android:padding="3dp"
-        android:src="@drawable/record_or_stop" />
-
-    <com.notificationbuzzer.fabuzaid21.TimerTextView
-        android:id="@+id/timer"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_above="@id/record"
-        android:layout_marginBottom="5dp"
-        android:layout_marginTop="10dp"
-        android:gravity="center_horizontal"
-        android:textColor="@color/timer_text"
-        android:textSize="40sp" />
 
 </RelativeLayout>
