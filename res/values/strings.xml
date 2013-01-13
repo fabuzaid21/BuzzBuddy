@@ -7,7 +7,7 @@
     <string name="title_activity_notification_buzzer">NotificationBuzzer</string>
     <string name="service_description">Change the vibration pattern for your various notifications</string>
     <string name="vibration_pattern_explanation">Tap the record button to begin recording your vibration pattern.</string>
-    <string name="vibration_pattern_tapping">Tap anywhere on the screen to record your pattern. The timer will start once you tap.</string>
+    <string name="vibration_pattern_tapping">Tap anywhere on the screen to record your pattern.</string>
     <string name="add_a_pattern">Add a pattern</string>
     <string name="review_a_pattern">Review a pattern</string>
     <string name="activate_accessability_settings">You need to activate accessability settings to use Notification Buzzer.</string>
