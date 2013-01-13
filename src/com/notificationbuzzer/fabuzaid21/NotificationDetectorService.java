@@ -12,6 +12,8 @@ import android.view.accessibility.AccessibilityEvent;
 
 public class NotificationDetectorService extends AccessibilityService {
 
+	private static final String GOOGLE_TALK_PACKAGE = "com.google.android.talk";
+	private static final String GOOGLE_SERVICES_FRAMEWORK_PACKAGE = "com.google.android.gsf";
 	private static final String TAG = NotificationDetectorService.class.getSimpleName();
 	private Vibrator vibrator;
 	private AudioManager audioManager;
@@ -24,7 +26,7 @@ public class NotificationDetectorService extends AccessibilityService {
 		if (audioManager.getRingerMode() == AudioManager.RINGER_MODE_SILENT) {
 			return;
 		}
-		final String packageName = String.valueOf(event.getPackageName());
+		String packageName = String.valueOf(event.getPackageName());
 		Log.d(TAG, packageName);
 		if (event.getEventType() == AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED) {
 			Log.d(TAG, "Notification Event");
@@ -38,6 +40,9 @@ public class NotificationDetectorService extends AccessibilityService {
 				return;
 			}
 
+			if (packageName.equals(GOOGLE_SERVICES_FRAMEWORK_PACKAGE)) {
+				packageName = GOOGLE_TALK_PACKAGE;
+			}
 			final Cursor resultSet = base.queryByPackageName(packageName);
 			resultSet.moveToFirst();
 			if (resultSet.getCount() > 0) {
