@@ -2,6 +2,7 @@ package com.notificationbuzzer.fabuzaid21;
 
 import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.AccessibilityServiceInfo;
+import android.app.Notification;
 import android.content.Context;
 import android.database.Cursor;
 import android.media.AudioManager;
@@ -23,9 +24,19 @@ public class NotificationDetectorService extends AccessibilityService {
 		if (audioManager.getRingerMode() == AudioManager.RINGER_MODE_SILENT) {
 			return;
 		}
+		final String packageName = String.valueOf(event.getPackageName());
+		Log.d(TAG, packageName);
 		if (event.getEventType() == AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED) {
-			final String packageName = String.valueOf(event.getPackageName());
-			Log.d(TAG, packageName);
+			Log.d(TAG, "Notification Event");
+			final Notification notification = (Notification) event.getParcelableData();
+			if (notification == null) {
+				Log.d(TAG, "notification is null");
+				return;
+			}
+			if ((notification.flags & Notification.FLAG_ONGOING_EVENT) != 0) {
+				Log.d(TAG, "ongoing event, do not play vibration pattern");
+				return;
+			}
 
 			base.open();
 			final Cursor resultSet = base.queryByPackageName(packageName);
