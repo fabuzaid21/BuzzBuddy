@@ -21,6 +21,7 @@ public class NotificationBuzzerApp extends Application {
 	public void onCreate() {
 		super.onCreate();
 		base = new BuzzDB(this);
+		base.open();
 		if (isFirstRun()) {
 			addShortcutToHomeScreen();
 		}
@@ -52,4 +53,9 @@ public class NotificationBuzzerApp extends Application {
 		return base;
 	}
 
+	@Override
+	public void onTerminate() {
+		base.close();
+		base = null;
+	}
 }

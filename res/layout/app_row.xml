@@ -11,6 +11,7 @@
         android:layout_height="wrap_content"
         android:layout_weight="0.15"
         android:layout_marginLeft="5dp"
+        android:visibility="gone"
         android:layout_gravity="center_vertical"
         android:checked="false"
         android:focusable="false" />
@@ -41,6 +42,7 @@
         android:layout_marginRight="5dp"
         android:layout_weight="0.15"
         android:adjustViewBounds="true"
+        android:visibility="gone"
         android:background="@drawable/item_background_holo_dark"
         android:contentDescription="@string/playback"
         android:paddingBottom="5dp"

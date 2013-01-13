@@ -38,7 +38,6 @@ public class NotificationDetectorService extends AccessibilityService {
 				return;
 			}
 
-			base.open();
 			final Cursor resultSet = base.queryByPackageName(packageName);
 			resultSet.moveToFirst();
 			if (resultSet.getCount() > 0) {
@@ -50,6 +49,7 @@ public class NotificationDetectorService extends AccessibilityService {
 				vibrator.vibrate(vibrationPattern, -1);
 				audioManager.setVibrateSetting(AudioManager.VIBRATE_TYPE_NOTIFICATION, vibrateSetting);
 			}
+			resultSet.close();
 		}
 	}
 
@@ -79,6 +79,5 @@ public class NotificationDetectorService extends AccessibilityService {
 	@Override
 	public void onInterrupt() {
 		Log.d(TAG, "onInterrupt");
-		base.close();
 	}
 }

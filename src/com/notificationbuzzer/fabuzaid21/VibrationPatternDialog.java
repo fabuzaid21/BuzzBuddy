@@ -2,6 +2,8 @@ package com.notificationbuzzer.fabuzaid21;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.Vibrator;
@@ -10,6 +12,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,6 +39,10 @@ public class VibrationPatternDialog extends Dialog implements OnClickListener, C
 	private ImageButton accept;
 	private final CountdownTimer timer;
 	private TextView timerText;
+	private TextView titleText;
+	private ImageView titleIcon;
+	private ResolveInfo currentApp;
+	private final PackageManager packageManager;
 
 	@Override
 	protected void onCreate(final Bundle savedInstanceState) {
@@ -51,12 +59,17 @@ public class VibrationPatternDialog extends Dialog implements OnClickListener, C
 
 		instructions = (TextView) findViewById(R.id.vibration_instructions);
 		timerText = (TextView) findViewById(R.id.timer);
+		final LinearLayout dialogTitle = (LinearLayout) findViewById(R.id.dialog_title);
+		titleText = (TextView) dialogTitle.findViewById(R.id.app_name);
+		titleIcon = (ImageView) dialogTitle.findViewById(R.id.app_icon);
 	}
 
 	@Override
 	protected void onStart() {
 		super.onStart();
 		Log.d(TAG, "onStart");
+		titleText.setText(currentApp.loadLabel(packageManager));
+		titleIcon.setImageDrawable(currentApp.loadIcon(packageManager));
 		setInitialMode();
 	}
 
@@ -74,6 +87,8 @@ public class VibrationPatternDialog extends Dialog implements OnClickListener, C
 	@Override
 	protected void onStop() {
 		super.onStop();
+		isRecording = false;
+		timer.stop();
 		Log.d(TAG, "onStop");
 	}
 
@@ -86,6 +101,7 @@ public class VibrationPatternDialog extends Dialog implements OnClickListener, C
 		super(context, theme);
 		Log.d(TAG, "constructor");
 		res = context.getResources();
+		packageManager = context.getPackageManager();
 		generalInstructions = res.getString(R.string.vibration_pattern_explanation);
 		recordingText = res.getString(R.string.vibration_pattern_tapping);
 		vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
@@ -173,5 +189,10 @@ public class VibrationPatternDialog extends Dialog implements OnClickListener, C
 	@Override
 	public void onTimerStart() {
 		// do nothing
+	}
+
+	public void setCurrentApp(final ResolveInfo currentItem) {
+		currentApp = currentItem;
+
 	}
 }

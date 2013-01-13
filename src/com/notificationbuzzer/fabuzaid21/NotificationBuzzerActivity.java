@@ -17,11 +17,11 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.DialogInterface.OnDismissListener;
 import android.content.Intent;
-import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.os.Vibrator;
 import android.provider.Settings;
 import android.provider.Settings.SettingNotFoundException;
@@ -35,6 +35,7 @@ import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 
 import com.actionbarsherlock.app.SherlockListActivity;
+import com.actionbarsherlock.view.ActionMode;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
@@ -58,9 +59,16 @@ public class NotificationBuzzerActivity extends SherlockListActivity implements 
 	private List<ResolveInfo> assignedApps;
 	private NotiBuzzAdapter adapter;
 	private StickyListHeadersListView stickyList;
+	private ActionMode checkedActionMode;
 
 	@Override
 	protected void onCreate(final Bundle savedInstanceState) {
+		if (BuildConfig.DEBUG) {
+			StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().detectDiskReads().detectDiskWrites()
+					.detectNetwork().penaltyLog().build());
+			StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder().detectLeakedSqlLiteObjects().penaltyLog()
+					.penaltyDeath().build());
+		}
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_notification_buzzer);
 
@@ -72,7 +80,6 @@ public class NotificationBuzzerActivity extends SherlockListActivity implements 
 		// open the database to find apps that have a vibration associated with
 		// them already.
 		base = ((NotificationBuzzerApp) getApplication()).getDatabase();
-		base.open();
 
 		stickyList = (StickyListHeadersListView) getListView();
 		stickyList.setOnItemClickListener(this);
@@ -97,27 +104,12 @@ public class NotificationBuzzerActivity extends SherlockListActivity implements 
 	@Override
 	public boolean onCreateOptionsMenu(final Menu menu) {
 		Log.d(TAG, "onCreateOptionsMenu");
-		if (adapter.getCheckedItemsSize() > 0) {
-			Log.d(TAG, "inflating");
-			final MenuInflater inflater = getSupportMenuInflater();
-			inflater.inflate(R.menu.activity_notification_buzzer, menu);
-		}
+		// if (adapter.getCheckedItemsSize() > 0) {
+		// Log.d(TAG, "inflating");
+		// final MenuInflater inflater = getSupportMenuInflater();
+		// inflater.inflate(R.menu.activity_notification_buzzer, menu);
+		// }
 		return true;
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(final MenuItem item) {
-		switch (item.getItemId()) {
-		case R.id.clear_selections:
-			clearChecks();
-			return true;
-		case R.id.delete_selections:
-			deleteSelections();
-			return true;
-
-		}
-		closeOptionsMenu();
-		return super.onOptionsItemSelected(item);
 	}
 
 	private void clearChecks() {
@@ -127,7 +119,6 @@ public class NotificationBuzzerActivity extends SherlockListActivity implements 
 		// check boxes will all be unchecked (and we make sue they're unchecked
 		// when getView is called)
 		adapter.notifyDataSetChanged();
-		supportInvalidateOptionsMenu();
 	}
 
 	private void deleteSelections() {
@@ -140,7 +131,21 @@ public class NotificationBuzzerActivity extends SherlockListActivity implements 
 		Collections.sort(unassignedApps, this);
 		checkedItems.clear();
 		adapter.notifyDataSetChanged();
-		supportInvalidateOptionsMenu();
+		deleteAppsFromDatabase(toDelete);
+	}
+
+	private void deleteAppsFromDatabase(final List<ResolveInfo> toDelete) {
+		new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				for (final ResolveInfo elem : toDelete) {
+					base.deleteByPackageName(elem.activityInfo.applicationInfo.packageName);
+				}
+
+			};
+
+		}).start();
 	}
 
 	@Override
@@ -172,6 +177,7 @@ public class NotificationBuzzerActivity extends SherlockListActivity implements 
 		}
 		unassignedApps.addAll(allApps.values());
 		Collections.sort(unassignedApps, this);
+		baseApps.close();
 	}
 
 	private static Map<String, ResolveInfo> filterSystemApps(final List<ResolveInfo> allApps) {
@@ -194,12 +200,8 @@ public class NotificationBuzzerActivity extends SherlockListActivity implements 
 
 	@Override
 	public void onDestroy() {
-		base.close();
+		Log.d(TAG, "onDestroy");
 		super.onDestroy();
-	}
-
-	public String getApplicationName(final PackageInfo info) {
-		return info.applicationInfo.processName;
 	}
 
 	private void checkAccessibility() {
@@ -269,6 +271,7 @@ public class NotificationBuzzerActivity extends SherlockListActivity implements 
 		}
 		vibrationPattern = new VibrationPattern();
 		vibrationPatternDialog.setVibrationPattern(vibrationPattern);
+		vibrationPatternDialog.setCurrentApp((ResolveInfo) adapter.getItem(position));
 		isCanceled = false;
 		vibrationPatternDialog.show();
 	}
@@ -301,6 +304,7 @@ public class NotificationBuzzerActivity extends SherlockListActivity implements 
 				base.createRow(BuzzDB.DATABASE_APP_TABLE, values);
 				updateOrAddToRecordedApps(listPosition, false);
 			}
+			nameCheck.close();
 		}
 	}
 
@@ -317,7 +321,6 @@ public class NotificationBuzzerActivity extends SherlockListActivity implements 
 
 	private ResolveInfo deleteFromRecordedApps(final int position) {
 		final ResolveInfo removed = assignedApps.get(position);
-		base.deleteByPackageName(removed.activityInfo.applicationInfo.packageName);
 		unassignedApps.add(removed);
 		return removed;
 	}
@@ -384,6 +387,7 @@ public class NotificationBuzzerActivity extends SherlockListActivity implements 
 		final long delay = totalPatternTime(vibrationPattern);
 		adapter.disableOtherPlaybackButtonsForTime(index, delay);
 		vibrator.vibrate(vibrationPattern, -1);
+		entry.close();
 	}
 
 	private static long totalPatternTime(final long[] pattern) {
@@ -401,14 +405,64 @@ public class NotificationBuzzerActivity extends SherlockListActivity implements 
 			Log.d(TAG, "checkbox checked, position = " + buttonView.getTag());
 			checked.add((Integer) buttonView.getTag());
 			if (checked.size() == 1) {
-				supportInvalidateOptionsMenu();
+				checkedActionMode = startActionMode(checkedActionModeCallback);
 			}
 		} else {
 			Log.d(TAG, "checkbox unchecked, position = " + buttonView.getTag());
 			checked.remove(buttonView.getTag());
 			if (checked.size() == 0) {
-				supportInvalidateOptionsMenu();
+				if (checkedActionMode != null) {
+					checkedActionMode.finish();
+				}
 			}
 		}
 	}
+
+	private final ActionMode.Callback checkedActionModeCallback = new ActionMode.Callback() {
+
+		private boolean isDeleting;
+
+		// Called when the action mode is created; startActionMode() was called
+		@Override
+		public boolean onCreateActionMode(final ActionMode mode, final Menu menu) {
+			// Inflate a menu resource providing context menu items
+			Log.d(TAG, "inflating checked action menu");
+			final MenuInflater inflater = mode.getMenuInflater();
+			inflater.inflate(R.menu.notification_buzzer_menu, menu);
+			return true;
+		}
+
+		// Called each time the action mode is shown. Always called after
+		// onCreateActionMode, but may be called multiple times if the mode
+		// is invalidated.
+		@Override
+		public boolean onPrepareActionMode(final ActionMode mode, final Menu menu) {
+			isDeleting = false;
+			return true;
+		}
+
+		// Called when the user selects a contextual menu item
+		@Override
+		public boolean onActionItemClicked(final ActionMode mode, final MenuItem item) {
+			switch (item.getItemId()) {
+			case R.id.delete_selections:
+				deleteSelections();
+				isDeleting = true;
+				mode.finish();
+				return true;
+			default:
+				return false;
+			}
+
+		}
+
+		// Called when the user exits the action mode
+		@Override
+		public void onDestroyActionMode(final ActionMode mode) {
+			if (!isDeleting) {
+				clearChecks();
+			}
+			checkedActionMode = null;
+		}
+	};
 }
