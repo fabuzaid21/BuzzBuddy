@@ -298,11 +298,25 @@ public class NotificationBuzzerActivity extends SherlockListActivity implements 
 			nameCheck.moveToFirst();
 			if (nameCheck.getCount() > 0) {
 				final long rowId = nameCheck.getLong(BuzzDB.INDEX_ROW_ID);
-				base.updateRow(BuzzDB.DATABASE_APP_TABLE, rowId, values);
 				updateOrAddToRecordedApps(listPosition, true);
+				new Thread(new Runnable() {
+
+					@Override
+					public void run() {
+						base.updateRow(BuzzDB.DATABASE_APP_TABLE, rowId, values);
+
+					}
+				}).start();
 			} else {
-				base.createRow(BuzzDB.DATABASE_APP_TABLE, values);
 				updateOrAddToRecordedApps(listPosition, false);
+				new Thread(new Runnable() {
+
+					@Override
+					public void run() {
+						base.createRow(BuzzDB.DATABASE_APP_TABLE, values);
+
+					}
+				}).start();
 			}
 			nameCheck.close();
 		}
