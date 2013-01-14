@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:gravity="left"
         android:paddingLeft="4dp"
-        android:textColor="@color/holo_blue_dark"
+        android:textColor="@color/holo_blue_light"
         android:textSize="16sp"
         android:textStyle="bold" />
 

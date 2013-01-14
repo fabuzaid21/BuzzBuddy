@@ -19,13 +19,13 @@
         android:paddingRight="15dp"
         android:paddingTop="18dp"
         android:text="@string/accessability_settings"
-        android:textColor="@color/holo_blue_dark"
+        android:textColor="@color/holo_blue_light"
         android:textSize="23sp" />
 
     <View
         android:layout_width="match_parent"
         android:layout_height="2dip"
-        android:background="@color/holo_blue_dark" />
+        android:background="@color/holo_blue_light" />
 
     <TextView
         android:id="@+id/dialog_message"
@@ -53,6 +53,7 @@
         android:gravity="center"
         android:background="@drawable/item_background_holo_dark"
         android:text="@string/activate"
+        android:textColor="#111111"
         android:textSize="15sp" />
 
 </LinearLayout>
