@@ -34,6 +34,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 
+import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockListActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
@@ -45,7 +46,7 @@ public class NotificationBuzzerActivity extends SherlockListActivity implements 
 
 	private static final String NOTIFICATION_BUZZER_PACKAGE = NotificationBuzzerActivity.class.getPackage().getName();
 	private static final String ACTIVITY_NAME = NotificationBuzzerActivity.class.getSimpleName();
-	private static final String TAG = ACTIVITY_NAME;
+	private static final String TAG = "thistag";
 	private static final String ACCESSIBILITY_SERVICE_NAME = NOTIFICATION_BUZZER_PACKAGE + "/"
 			+ NOTIFICATION_BUZZER_PACKAGE + "." + NotificationDetectorService.class.getSimpleName();
 
@@ -92,6 +93,10 @@ public class NotificationBuzzerActivity extends SherlockListActivity implements 
 
 		stickyList.setAdapter(adapter);
 		stickyList.setOnItemClickListener(this);
+		
+		//ActionBar actionBar = getSupportActionBar(); 
+		//actionBar.setCustomView(R.layout.search_bar); 
+		//actionBar.setDisplayShowCustomEnabled(true);
 	}
 
 	@Override
@@ -194,6 +199,7 @@ public class NotificationBuzzerActivity extends SherlockListActivity implements 
 
 	@Override
 	public void onDestroy() {
+		Log.v(TAG, "onDestroy message");
 		base.close();
 		super.onDestroy();
 	}
