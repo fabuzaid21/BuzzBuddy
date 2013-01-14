@@ -12,5 +12,7 @@
     <string name="record">Record</string>
     <string name="playback">Playback</string>
     <string name="pattern_limit_length">Patterns cannot last longer than 30 seconds</string>
+    <string name="accessability_settings">Accessability Settings</string>
+    <string name="activate">Activate</string>
 
 </resources>

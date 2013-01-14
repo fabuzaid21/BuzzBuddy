@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -60,6 +59,7 @@ public class NotificationBuzzerActivity extends SherlockListActivity implements 
 	private NotiBuzzAdapter adapter;
 	private StickyListHeadersListView stickyList;
 	private ActionMode checkedActionMode;
+	private CustomAlertDialog alertDialog;
 
 	@Override
 	protected void onCreate(final Bundle savedInstanceState) {
@@ -208,23 +208,26 @@ public class NotificationBuzzerActivity extends SherlockListActivity implements 
 		if (isAccessibilityEnabled()) {
 			return;
 		}
+		if (alertDialog != null && alertDialog.isShowing()) {
+			return;
+		}
+		if (alertDialog == null) {
+			alertDialog = new CustomAlertDialog(this, R.style.VibrationPatternDialogStyle);
 
-		final AlertDialog.Builder alert = new AlertDialog.Builder(this);
-
-		alert.setTitle("Accessability Settings");
-		alert.setMessage(getString(R.string.activate_accessability_settings));
-
-		alert.setPositiveButton("Activate", new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(final DialogInterface dialog, final int whichButton) {
-				enableAccessabilitySettings();
-			}
-		});
-		alert.show();
+			alertDialog.setOnClickListener(new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(final DialogInterface dialog, final int whichButton) {
+					enableAccessabilitySettings();
+					alertDialog.dismiss();
+				}
+			});
+		}
+		alertDialog.show();
 	}
 
-	protected void enableAccessabilitySettings() {
+	private void enableAccessabilitySettings() {
 		final Intent settingsIntent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
+		settingsIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
 		startActivity(settingsIntent);
 	}
 

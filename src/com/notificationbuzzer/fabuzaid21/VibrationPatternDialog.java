@@ -44,6 +44,18 @@ public class VibrationPatternDialog extends Dialog implements OnClickListener, C
 	private ResolveInfo currentApp;
 	private final PackageManager packageManager;
 
+	public VibrationPatternDialog(final Context context, final int theme) {
+		super(context, theme);
+		Log.d(TAG, "constructor");
+		res = context.getResources();
+		packageManager = context.getPackageManager();
+		generalInstructions = res.getString(R.string.vibration_pattern_explanation);
+		recordingText = res.getString(R.string.vibration_pattern_tapping);
+		vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+		timer = new CountdownTimer(THIRTY_SECONDS);
+		timer.setCountdownCallback(this);
+	}
+
 	@Override
 	protected void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -95,19 +107,6 @@ public class VibrationPatternDialog extends Dialog implements OnClickListener, C
 	private void setAcceptButtonEnabled(final boolean isEnabled) {
 		accept.setEnabled(isEnabled);
 		accept.setClickable(isEnabled);
-	}
-
-	public VibrationPatternDialog(final Context context, final int theme) {
-		super(context, theme);
-		Log.d(TAG, "constructor");
-		res = context.getResources();
-		packageManager = context.getPackageManager();
-		generalInstructions = res.getString(R.string.vibration_pattern_explanation);
-		recordingText = res.getString(R.string.vibration_pattern_tapping);
-		vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
-		timer = new CountdownTimer(THIRTY_SECONDS);
-		timer.setCountdownCallback(this);
-
 	}
 
 	public void setVibrationPattern(final VibrationPattern vibPattern) {
