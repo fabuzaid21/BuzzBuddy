@@ -34,7 +34,6 @@ import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 
 import com.actionbarsherlock.app.SherlockListActivity;
-import com.actionbarsherlock.view.ActionMode;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
@@ -61,7 +60,6 @@ public class NotificationBuzzerActivity extends SherlockListActivity implements 
 	private List<ResolveInfo> unassignedApps, assignedApps, recommendedApps;
 	private NotiBuzzAdapter adapter;
 	private StickyListHeadersListView stickyList;
-	private ActionMode checkedActionMode;
 	private CustomAlertDialog alertDialog;
 	private Menu optionsMenu;
 
@@ -310,6 +308,7 @@ public class NotificationBuzzerActivity extends SherlockListActivity implements 
 	public void onItemClick(final AdapterView<?> parent, final View view, final int position, final long id) {
 		final Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 		vibrator.cancel();
+		setMenuItemsVisible(false);
 		clearChecks();
 		adapter.enabledPlaybackButtons();
 		Log.d(TAG, "postion = " + position);
