@@ -63,6 +63,7 @@ public class NotificationBuzzerActivity extends SherlockListActivity implements 
 	private StickyListHeadersListView stickyList;
 	private ActionMode checkedActionMode;
 	private CustomAlertDialog alertDialog;
+	private Menu optionsMenu;
 
 	@Override
 	protected void onCreate(final Bundle savedInstanceState) {
@@ -115,12 +116,34 @@ public class NotificationBuzzerActivity extends SherlockListActivity implements 
 	@Override
 	public boolean onCreateOptionsMenu(final Menu menu) {
 		Log.d(TAG, "onCreateOptionsMenu");
-		// if (adapter.getCheckedItemsSize() > 0) {
-		// Log.d(TAG, "inflating");
-		// final MenuInflater inflater = getSupportMenuInflater();
-		// inflater.inflate(R.menu.activity_notification_buzzer, menu);
-		// }
+		Log.d(TAG, "inflating context menu");
+		final MenuInflater inflater = getSupportMenuInflater();
+		inflater.inflate(R.menu.notification_buzzer_menu, menu);
+		optionsMenu = menu;
+		setMenuItemsVisible(false);
 		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(final MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.delete_selections:
+			setMenuItemsVisible(false);
+			deleteSelections();
+			return true;
+		case R.id.clear_selections:
+			setMenuItemsVisible(false);
+			clearChecks();
+			return true;
+		default:
+			return false;
+		}
+	}
+
+	private void setMenuItemsVisible(final boolean visible) {
+		for (int i = 0; i < optionsMenu.size(); ++i) {
+			optionsMenu.getItem(i).setVisible(visible).setEnabled(visible);
+		}
 	}
 
 	private void clearChecks() {
@@ -461,64 +484,14 @@ public class NotificationBuzzerActivity extends SherlockListActivity implements 
 			Log.d(TAG, "checkbox checked, position = " + buttonView.getTag());
 			checked.add((Integer) buttonView.getTag());
 			if (checked.size() == 1) {
-				checkedActionMode = startActionMode(checkedActionModeCallback);
+				setMenuItemsVisible(true);
 			}
 		} else {
 			Log.d(TAG, "checkbox unchecked, position = " + buttonView.getTag());
 			checked.remove(buttonView.getTag());
 			if (checked.size() == 0) {
-				if (checkedActionMode != null) {
-					checkedActionMode.finish();
-				}
+				setMenuItemsVisible(false);
 			}
 		}
 	}
-
-	private final ActionMode.Callback checkedActionModeCallback = new ActionMode.Callback() {
-
-		private boolean isDeleting;
-
-		// Called when the action mode is created; startActionMode() was called
-		@Override
-		public boolean onCreateActionMode(final ActionMode mode, final Menu menu) {
-			// Inflate a menu resource providing context menu items
-			Log.d(TAG, "inflating checked action menu");
-			final MenuInflater inflater = mode.getMenuInflater();
-			inflater.inflate(R.menu.notification_buzzer_menu, menu);
-			return true;
-		}
-
-		// Called each time the action mode is shown. Always called after
-		// onCreateActionMode, but may be called multiple times if the mode
-		// is invalidated.
-		@Override
-		public boolean onPrepareActionMode(final ActionMode mode, final Menu menu) {
-			isDeleting = false;
-			return true;
-		}
-
-		// Called when the user selects a contextual menu item
-		@Override
-		public boolean onActionItemClicked(final ActionMode mode, final MenuItem item) {
-			switch (item.getItemId()) {
-			case R.id.delete_selections:
-				deleteSelections();
-				isDeleting = true;
-				mode.finish();
-				return true;
-			default:
-				return false;
-			}
-
-		}
-
-		// Called when the user exits the action mode
-		@Override
-		public void onDestroyActionMode(final ActionMode mode) {
-			if (!isDeleting) {
-				clearChecks();
-			}
-			checkedActionMode = null;
-		}
-	};
 }

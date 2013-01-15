@@ -1,6 +1,10 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <item
+        android:id="@+id/clear_selections"
+        android:showAsAction="ifRoom|withText"
+        android:title="Clear"/>
+    <item
         android:id="@+id/delete_selections"
         android:icon="@drawable/discard"
         android:showAsAction="ifRoom|withText"
