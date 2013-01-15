@@ -21,25 +21,25 @@ import com.emilsjolander.components.stickylistheaders.StickyListHeadersAdapter;
 
 public class NotiBuzzAdapter extends BaseAdapter implements StickyListHeadersAdapter {
 
-	private final List<ResolveInfo> assignedApps;
-	private final List<ResolveInfo> unassignedApps;
+	private final List<ResolveInfo> assignedApps, unassignedApps, recommendedApps;
 	private final LayoutInflater inflater;
 	private final NotificationBuzzerActivity context;
 	private Set<Integer> checkedItems;
 	private final SparseArray<ImageView> playbackViews;
 
 	public NotiBuzzAdapter(final Context context, final List<ResolveInfo> assignedApps,
-			final List<ResolveInfo> unassignedApps) {
+			final List<ResolveInfo> unassignedApps, List<ResolveInfo> recommendedApps) {
 		inflater = LayoutInflater.from(context);
 		this.assignedApps = assignedApps;
 		this.unassignedApps = unassignedApps;
+		this.recommendedApps=recommendedApps;
 		this.context = (NotificationBuzzerActivity) context;
 		playbackViews = new SparseArray<ImageView>();
 	}
 
 	@Override
 	public int getCount() {
-		return assignedApps.size() + unassignedApps.size();
+		return assignedApps.size() + unassignedApps.size()+recommendedApps.size();
 	}
 
 	@Override
@@ -48,10 +48,13 @@ public class NotiBuzzAdapter extends BaseAdapter implements StickyListHeadersAda
 	}
 
 	private ResolveInfo getItemFromLists(final int position) {
-		if (position >= assignedApps.size()) {
-			return unassignedApps.get(position - assignedApps.size());
-		}
-		return assignedApps.get(position);
+		if(position<assignedApps.size())
+			return assignedApps.get(position);
+		else if (position<assignedApps.size()+recommendedApps.size())
+			return recommendedApps.get(position - assignedApps.size());
+		else
+			return unassignedApps.get(position - assignedApps.size()-recommendedApps.size());
+		
 	}
 
 	@Override
@@ -135,11 +138,13 @@ public class NotiBuzzAdapter extends BaseAdapter implements StickyListHeadersAda
 		}
 
 		// set header text as first char in name
-		if (position >= assignedApps.size()) {
+		if (position >= assignedApps.size()+recommendedApps.size()) {
 			holder.text.setText("Unrecorded Apps");
-		} else {
-			holder.text.setText("Recorded Apps");
+		} else if (position>=assignedApps.size()) {
+			holder.text.setText("Recommended Apps");
 		}
+		else
+			holder.text.setText("Recorded Apps");
 
 		return convertView;
 	}
@@ -150,11 +155,13 @@ public class NotiBuzzAdapter extends BaseAdapter implements StickyListHeadersAda
 	public long getHeaderId(final int position) {
 		// return the first character of the country as ID because this is what
 		// headers are based upon
-		if (position >= assignedApps.size()) {
-			return 1;
-		} else {
+		if (position >= assignedApps.size()+recommendedApps.size()) {
 			return 0;
+		} else if (position>=assignedApps.size()) {
+			return 2;
 		}
+		else
+			return 1;
 	}
 
 	static class HeaderViewHolder {
