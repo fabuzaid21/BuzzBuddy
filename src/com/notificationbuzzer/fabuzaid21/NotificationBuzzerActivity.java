@@ -264,6 +264,7 @@ public class NotificationBuzzerActivity extends SherlockListActivity implements 
 	public void onItemClick(final AdapterView<?> parent, final View view, final int position, final long id) {
 		final Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 		vibrator.cancel();
+		clearChecks();
 		adapter.enabledPlaybackButtons();
 		Log.d(TAG, "postion = " + position);
 		listPosition = position;
