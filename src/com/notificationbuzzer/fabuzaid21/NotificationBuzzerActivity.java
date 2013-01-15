@@ -49,10 +49,13 @@ public class NotificationBuzzerActivity extends SherlockListActivity implements 
 	private static final String ACCESSIBILITY_SERVICE_NAME = NOTIFICATION_BUZZER_PACKAGE + "/"
 			+ NOTIFICATION_BUZZER_PACKAGE + "." + NotificationDetectorService.class.getSimpleName();
 
-	protected static final String [] recommendedPackages={"com.jb.gosms", "com.whatsapp", "com.yahoo.mobile.client.android.mail", "com.sgiggle.production", "com.instagram.android", "com.twitter.android", "com.skype.raider", "com.android.vending", 
-	                                                "com.google.android.apps.maps", "com.google.android.apps.plus", "com.omgpop.dstfree", "com.zynga.scramble", "com.facebook.orca", "com.google.android.gm", "com.google.android.talk", 
-	                                                "com.facebook.katana", "com.google.android.apps.googlevoice"};
-	
+	private static final String[] recommendedPackages = { "com.jb.gosms", "com.whatsapp",
+			"com.yahoo.mobile.client.android.mail", "com.sgiggle.production", "com.instagram.android",
+			"com.twitter.android", "com.skype.raider", "com.android.vending", "com.google.android.apps.maps",
+			"com.google.android.apps.plus", "com.omgpop.dstfree", "com.zynga.scramble", "com.facebook.orca",
+			"com.google.android.gm", "com.google.android.talk", "com.facebook.katana",
+			"com.google.android.apps.googlevoice" };
+
 	private BuzzDB base;
 	private VibrationPatternDialog vibrationPatternDialog;
 	private VibrationPattern vibrationPattern;
@@ -96,15 +99,8 @@ public class NotificationBuzzerActivity extends SherlockListActivity implements 
 
 		unassignedApps = new ArrayList<ResolveInfo>();
 		assignedApps = new ArrayList<ResolveInfo>();
-		recommendedApps=new ArrayList<ResolveInfo>();
+		recommendedApps = new ArrayList<ResolveInfo>();
 		sortAppAssignment(candidateApps, unassignedApps, recommendedApps, assignedApps, pm);
-		
-		/*
-		 * String[] appsHere=new String[50];
-		for(int x=0;x<assignedApps.size();x++)
-		appsHere[x]=assignedApps.get(x).activityInfo.applicationInfo.packageName;
-		*/
-		
 
 		adapter = new NotiBuzzAdapter(this, assignedApps, unassignedApps, recommendedApps);
 
@@ -115,11 +111,6 @@ public class NotificationBuzzerActivity extends SherlockListActivity implements 
 	@Override
 	public boolean onCreateOptionsMenu(final Menu menu) {
 		Log.d(TAG, "onCreateOptionsMenu");
-		// if (adapter.getCheckedItemsSize() > 0) {
-		// Log.d(TAG, "inflating");
-		// final MenuInflater inflater = getSupportMenuInflater();
-		// inflater.inflate(R.menu.activity_notification_buzzer, menu);
-		// }
 		return true;
 	}
 
@@ -175,8 +166,8 @@ public class NotificationBuzzerActivity extends SherlockListActivity implements 
 		}
 	}
 
-	private void sortAppAssignment(final Map<String, ResolveInfo> allApps, final List<ResolveInfo> unassignedApps, final List<ResolveInfo>recommendedApps,
-			final List<ResolveInfo> assignedApps, final PackageManager pm) {
+	private void sortAppAssignment(final Map<String, ResolveInfo> allApps, final List<ResolveInfo> unassignedApps,
+			final List<ResolveInfo> recommendedApps, final List<ResolveInfo> assignedApps, final PackageManager pm) {
 		final Cursor baseApps = base.queryAll(BuzzDB.DATABASE_APP_TABLE);
 		baseApps.moveToFirst();
 		while (!baseApps.isAfterLast()) {
@@ -188,16 +179,14 @@ public class NotificationBuzzerActivity extends SherlockListActivity implements 
 			baseApps.moveToNext();
 		}
 		unassignedApps.addAll(allApps.values());
-		
-		for(int x=0;x<recommendedPackages.length;x++)
-		{
-			if(allApps.containsKey(recommendedPackages[x]))
-			{
+
+		for (int x = 0; x < recommendedPackages.length; x++) {
+			if (allApps.containsKey(recommendedPackages[x])) {
 				recommendedApps.add(allApps.get(recommendedPackages[x]));
 				unassignedApps.remove(allApps.get(recommendedPackages[x]));
 			}
 		}
-		
+
 		Collections.sort(unassignedApps, this);
 		Collections.sort(recommendedApps, this);
 		baseApps.close();
@@ -351,14 +340,15 @@ public class NotificationBuzzerActivity extends SherlockListActivity implements 
 
 	private void updateOrAddToRecordedApps(final int position, final boolean update) {
 
-		//if adding new
+		// if adding new
 		if (!update) {
-			//if you are adding a recommended app
-			if(position<assignedApps.size()+recommendedApps.size())
-			assignedApps.add(0, recommendedApps.remove(position-assignedApps.size()));
-			else
-			assignedApps.add(0, unassignedApps.remove(position - assignedApps.size()-recommendedApps.size()));
+			// if you are adding a recommended app
+			if (position < assignedApps.size() + recommendedApps.size()) {
+				assignedApps.add(0, recommendedApps.remove(position - assignedApps.size()));
 			} else {
+				assignedApps.add(0, unassignedApps.remove(position - assignedApps.size() - recommendedApps.size()));
+			}
+		} else {
 			assignedApps.add(0, assignedApps.remove(position));
 		}
 		adapter.notifyDataSetChanged();
@@ -366,14 +356,12 @@ public class NotificationBuzzerActivity extends SherlockListActivity implements 
 
 	private ResolveInfo deleteFromRecordedApps(final int position) {
 		final ResolveInfo removed = assignedApps.get(position);
-		String packageName=removed.activityInfo.applicationInfo.packageName;
-		for(int x=0;x<recommendedPackages.length;x++)
-		{
-			if(recommendedPackages[x].equals(packageName))
-				{
-					recommendedApps.add(removed);
-					return removed;
-				}
+		final String packageName = removed.activityInfo.applicationInfo.packageName;
+		for (int x = 0; x < recommendedPackages.length; x++) {
+			if (recommendedPackages[x].equals(packageName)) {
+				recommendedApps.add(removed);
+				return removed;
+			}
 		}
 		unassignedApps.add(removed);
 		return removed;
@@ -382,11 +370,11 @@ public class NotificationBuzzerActivity extends SherlockListActivity implements 
 	private String getAppNameForPosition(final int position) {
 		if (position < assignedApps.size()) {
 			return assignedApps.get(position).activityInfo.applicationInfo.packageName;
-		} else if (position<assignedApps.size()+recommendedApps.size()) {
+		} else if (position < assignedApps.size() + recommendedApps.size()) {
 			return recommendedApps.get(position - assignedApps.size()).activityInfo.applicationInfo.packageName;
+		} else {
+			return unassignedApps.get(position - assignedApps.size() - recommendedApps.size()).activityInfo.packageName;
 		}
-		else
-			return unassignedApps.get(position-assignedApps.size()-recommendedApps.size()).activityInfo.packageName;
 	}
 
 	private static String serializePattern(final Long[] finalPattern) {
