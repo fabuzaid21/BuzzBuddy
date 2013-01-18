@@ -2,11 +2,16 @@ package com.notificationbuzzer.fabuzaid21;
 
 import java.io.File;
 
+import org.acra.ACRA;
+import org.acra.annotation.ReportsCrashes;
+
 import android.app.Application;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.util.Log;
 
+@ReportsCrashes(formKey = "dDhUXzBZT1VmWEYtbDMwazlGa2loRlE6MQ", logcatArguments = { "-t", "150", "-v", "long",
+		"dalvikvm:S" })
 public class NotificationBuzzerApp extends Application {
 
 	private static final String INSTALL_SHORTCUT_INTENT = "com.android.launcher.action.INSTALL_SHORTCUT";
@@ -20,6 +25,7 @@ public class NotificationBuzzerApp extends Application {
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		ACRA.init(this);
 		base = new BuzzDB(this);
 		base.open();
 		if (isFirstRun()) {
