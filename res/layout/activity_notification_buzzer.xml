@@ -2,16 +2,31 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".NotificationBuzzerActivity" >
 
     <com.emilsjolander.components.stickylistheaders.StickyListHeadersListView
         android:id="@android:id/list"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:cacheColorHint="#FFFFFF"
+        android:cacheColorHint="#ffffff"
         android:divider="@drawable/divider_vertical_dark"
         android:dividerHeight="1dp"
         android:listSelector="@drawable/list_selector" >
     </com.emilsjolander.components.stickylistheaders.StickyListHeadersListView>
+
+    <LinearLayout
+        android:id="@+id/empty_list_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:orientation="vertical" >
+
+        <ProgressBar
+            android:id="@android:id/progress"
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
 
 </LinearLayout>

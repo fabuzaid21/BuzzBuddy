@@ -1,13 +1,10 @@
 package com.notificationbuzzer.fabuzaid21;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import android.content.ContentValues;
@@ -49,13 +46,6 @@ public class NotificationBuzzerActivity extends SherlockListActivity implements 
 	private static final String ACCESSIBILITY_SERVICE_NAME = NOTIFICATION_BUZZER_PACKAGE + "/"
 			+ NOTIFICATION_BUZZER_PACKAGE + "." + NotificationDetectorService.class.getSimpleName();
 
-	private static final String[] recommendedPackages = { "com.jb.gosms", "com.whatsapp",
-			"com.yahoo.mobile.client.android.mail", "com.sgiggle.production", "com.instagram.android",
-			"com.twitter.android", "com.skype.raider", "com.android.vending", "com.google.android.apps.maps",
-			"com.google.android.apps.plus", "com.omgpop.dstfree", "com.zynga.scramble", "com.facebook.orca",
-			"com.google.android.gm", "com.google.android.talk", "com.facebook.katana",
-			"com.google.android.apps.googlevoice" };
-
 	private BuzzDB base;
 	private VibrationPatternDialog vibrationPatternDialog;
 	private VibrationPattern vibrationPattern;
@@ -75,6 +65,7 @@ public class NotificationBuzzerActivity extends SherlockListActivity implements 
 			StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder().detectLeakedSqlLiteObjects().penaltyLog()
 					.penaltyDeath().build());
 		}
+		Log.d(TAG, "onCreate");
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_notification_buzzer);
 
@@ -89,23 +80,16 @@ public class NotificationBuzzerActivity extends SherlockListActivity implements 
 
 		stickyList = (StickyListHeadersListView) getListView();
 		stickyList.setOnItemClickListener(this);
+		stickyList.setEmptyView(findViewById(R.id.empty_list_view));
 
-		final PackageManager pm = getPackageManager();
-
-		final Intent intent = new Intent(Intent.ACTION_MAIN, null);
-		intent.addCategory(Intent.CATEGORY_LAUNCHER);
-		final List<ResolveInfo> launcherApps = pm.queryIntentActivities(intent, PackageManager.PERMISSION_GRANTED);
-		final Map<String, ResolveInfo> candidateApps = filterSystemApps(launcherApps);
-
-		unassignedApps = new ArrayList<ResolveInfo>();
-		assignedApps = new ArrayList<ResolveInfo>();
-		recommendedApps = new ArrayList<ResolveInfo>();
-		sortAppAssignment(candidateApps, unassignedApps, recommendedApps, assignedApps, pm);
+		final NotificationBuzzerApp app = (NotificationBuzzerApp) getApplication();
+		unassignedApps = app.getUnassignedApps();
+		assignedApps = app.getAssignedApps();
+		recommendedApps = app.getRecommendedApps();
 
 		adapter = new NotiBuzzAdapter(this, assignedApps, unassignedApps, recommendedApps);
 
 		stickyList.setAdapter(adapter);
-		stickyList.setOnItemClickListener(this);
 	}
 
 	@Override
@@ -164,50 +148,6 @@ public class NotificationBuzzerActivity extends SherlockListActivity implements 
 		if (vibrationPattern != null && vibrationPatternDialog.isShowing()) {
 			vibrationPatternDialog.dismiss();
 		}
-	}
-
-	private void sortAppAssignment(final Map<String, ResolveInfo> allApps, final List<ResolveInfo> unassignedApps,
-			final List<ResolveInfo> recommendedApps, final List<ResolveInfo> assignedApps, final PackageManager pm) {
-		final Cursor baseApps = base.queryAll(BuzzDB.DATABASE_APP_TABLE);
-		baseApps.moveToFirst();
-		while (!baseApps.isAfterLast()) {
-			final String packageName = baseApps.getString(BuzzDB.APP_INDEX_NAME);
-			Log.d(TAG,
-					"first column = " + packageName + ", second column = "
-							+ baseApps.getString(BuzzDB.APP_INDEX_VIBRATION));
-			assignedApps.add(allApps.remove(packageName));
-			baseApps.moveToNext();
-		}
-		unassignedApps.addAll(allApps.values());
-
-		for (int x = 0; x < recommendedPackages.length; x++) {
-			if (allApps.containsKey(recommendedPackages[x])) {
-				recommendedApps.add(allApps.get(recommendedPackages[x]));
-				unassignedApps.remove(allApps.get(recommendedPackages[x]));
-			}
-		}
-
-		Collections.sort(unassignedApps, this);
-		Collections.sort(recommendedApps, this);
-		baseApps.close();
-	}
-
-	private static Map<String, ResolveInfo> filterSystemApps(final List<ResolveInfo> allApps) {
-		final Map<String, ResolveInfo> notificationApps = new HashMap<String, ResolveInfo>();
-		for (final ResolveInfo rInfo : allApps) {
-
-			final String packageName = rInfo.activityInfo.applicationInfo.packageName;
-			Log.d(TAG, "" + packageName);
-			if (rInfo.activityInfo.applicationInfo.sourceDir.startsWith("/data/app")
-					|| packageName.matches("(com.android.(mms|contacts|calendar|email)|com.google.android.*)")) {
-
-				if (packageName.equals(NOTIFICATION_BUZZER_PACKAGE)) {
-					continue;
-				}
-				notificationApps.put(packageName, rInfo);
-			}
-		}
-		return notificationApps;
 	}
 
 	@Override
@@ -357,11 +297,9 @@ public class NotificationBuzzerActivity extends SherlockListActivity implements 
 	private ResolveInfo deleteFromRecordedApps(final int position) {
 		final ResolveInfo removed = assignedApps.get(position);
 		final String packageName = removed.activityInfo.applicationInfo.packageName;
-		for (int x = 0; x < recommendedPackages.length; x++) {
-			if (recommendedPackages[x].equals(packageName)) {
-				recommendedApps.add(removed);
-				return removed;
-			}
+		if (NotificationBuzzerApp.recommendedPackages.contains(packageName)) {
+			recommendedApps.add(removed);
+			return removed;
 		}
 		unassignedApps.add(removed);
 		return removed;
