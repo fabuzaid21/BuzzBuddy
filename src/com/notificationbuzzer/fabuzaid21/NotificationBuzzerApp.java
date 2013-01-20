@@ -20,6 +20,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.database.Cursor;
+import android.net.Uri;
 import android.util.Log;
 
 @ReportsCrashes(formKey = "dDhUXzBZT1VmWEYtbDMwazlGa2loRlE6MQ", logcatArguments = { "-t", "150", "-v", "long",
@@ -35,6 +36,7 @@ public class NotificationBuzzerApp extends Application implements Comparator<Res
 	private BuzzDB base;
 	private DrawableManager drawableManager;
 
+	private Set<String> requiredSystemPackages;
 	private ArrayList<ResolveInfo> unassignedApps;
 	private ArrayList<ResolveInfo> assignedApps;
 	private ArrayList<ResolveInfo> recommendedApps;
@@ -84,9 +86,46 @@ public class NotificationBuzzerApp extends Application implements Comparator<Res
 			addShortcutToHomeScreen();
 		}
 		drawableManager = new DrawableManager(getPackageManager());
+		requiredSystemPackages = findSystemAppsOnPhone();
 		base = new BuzzDB(this);
 		base.open();
 		refreshAppList();
+	}
+
+	private Set<String> findSystemAppsOnPhone() {
+		final Set<String> toReturn = new HashSet<String>();
+		final PackageManager pm = getPackageManager();
+		final Intent stockIntent = new Intent();
+		stockIntent.addCategory(Intent.CATEGORY_DEFAULT);
+
+		stockIntent.setAction(Intent.ACTION_SENDTO);
+		stockIntent.setType("vnd.android-dir/mms-sms");
+		stockIntent.setData(Uri.parse("sms:2125551234"));
+		addAllPackageStrings(toReturn, pm.queryIntentActivities(stockIntent, PackageManager.MATCH_DEFAULT_ONLY));
+
+		stockIntent.setAction(Intent.ACTION_CALL);
+		stockIntent.setType(null);
+		stockIntent.setData(Uri.parse("tel:1234567890"));
+		addAllPackageStrings(toReturn, pm.queryIntentActivities(stockIntent, PackageManager.MATCH_DEFAULT_ONLY));
+
+		stockIntent.setAction(Intent.ACTION_SENDTO);
+		stockIntent.setType(null);
+		stockIntent.setData(Uri.parse("mailto:foo@bar.com"));
+		addAllPackageStrings(toReturn, pm.queryIntentActivities(stockIntent, PackageManager.MATCH_DEFAULT_ONLY));
+
+		final Intent calendarIntent = new Intent(Intent.ACTION_EDIT);
+		calendarIntent.setType("vnd.android.cursor.item/event");
+		calendarIntent.putExtra("allDay", true);
+		calendarIntent.putExtra("rrule", "FREQ=YEARLY");
+		addAllPackageStrings(toReturn, pm.queryIntentActivities(calendarIntent, PackageManager.MATCH_DEFAULT_ONLY));
+
+		return toReturn;
+	}
+
+	private void addAllPackageStrings(final Set<String> set, final List<ResolveInfo> apps) {
+		for (final ResolveInfo rInfo : apps) {
+			set.add(rInfo.activityInfo.applicationInfo.packageName);
+		}
 	}
 
 	public void refreshAppList() {
@@ -123,7 +162,7 @@ public class NotificationBuzzerApp extends Application implements Comparator<Res
 
 		final Intent intent = new Intent(Intent.ACTION_MAIN, null);
 		intent.addCategory(Intent.CATEGORY_LAUNCHER);
-		final List<ResolveInfo> launcherApps = pm.queryIntentActivities(intent, PackageManager.PERMISSION_GRANTED);
+		final List<ResolveInfo> launcherApps = pm.queryIntentActivities(intent, 0);
 		final Map<String, ResolveInfo> candidateApps = filterSystemApps(launcherApps);
 
 		unassignedApps = new ArrayList<ResolveInfo>();
@@ -166,9 +205,9 @@ public class NotificationBuzzerApp extends Application implements Comparator<Res
 		for (final ResolveInfo rInfo : allApps) {
 
 			final String packageName = rInfo.activityInfo.applicationInfo.packageName;
-			Log.d(TAG, "" + packageName);
 			if (rInfo.activityInfo.applicationInfo.sourceDir.startsWith("/data/app")
-					|| packageName.matches("(com.android.(mms|contacts|calendar|email)|com.google.android.*)")) {
+					|| packageName.matches("(com.android.(mms|contacts|calendar|email|phone)|com.google.android.*)")
+					|| requiredSystemPackages.contains(packageName)) {
 
 				if (packageName.equals(NOTIFICATION_BUZZER_PACKAGE)) {
 					continue;
@@ -215,6 +254,7 @@ public class NotificationBuzzerApp extends Application implements Comparator<Res
 
 	@Override
 	public void onTerminate() {
+		drawableManager = null;
 		base.close();
 		base = null;
 	}
