@@ -14,5 +14,8 @@
     <string name="pattern_limit_length">Patterns cannot last longer than 30 seconds</string>
     <string name="accessability_settings">Accessability Settings</string>
     <string name="activate">Activate</string>
+    <string name="unrecorded_apps">Unrecorded Apps</string>
+    <string name="recommended_apps">Recommended Apps</string>
+    <string name="recorded_apps">Recorded Apps</string>
 
 </resources>

@@ -26,6 +26,7 @@ public class NotiBuzzAdapter extends BaseAdapter implements StickyListHeadersAda
 	private final NotificationBuzzerActivity context;
 	private Set<Integer> checkedItems;
 	private final SparseArray<ImageView> playbackViews;
+	private final NotificationBuzzerApp app;
 
 	public NotiBuzzAdapter(final Context context, final List<ResolveInfo> assignedApps,
 			final List<ResolveInfo> unassignedApps, final List<ResolveInfo> recommendedApps) {
@@ -34,6 +35,7 @@ public class NotiBuzzAdapter extends BaseAdapter implements StickyListHeadersAda
 		this.unassignedApps = unassignedApps;
 		this.recommendedApps = recommendedApps;
 		this.context = (NotificationBuzzerActivity) context;
+		this.app = (NotificationBuzzerApp) this.context.getApplication();
 		playbackViews = new SparseArray<ImageView>();
 	}
 
@@ -89,7 +91,8 @@ public class NotiBuzzAdapter extends BaseAdapter implements StickyListHeadersAda
 
 		final ViewHolder holder = (ViewHolder) view.getTag();
 		final ResolveInfo item = getItemFromLists(position);
-		holder.icon.setImageDrawable(item.loadIcon(context.getPackageManager()));
+		holder.icon.setImageDrawable(app.getDrawableManager().fetchDrawable(
+				item.activityInfo.applicationInfo.packageName, item));
 		holder.appName.setText(item.loadLabel(context.getPackageManager()));
 
 		final CheckBox checkBox = holder.checkBox;
@@ -140,11 +143,11 @@ public class NotiBuzzAdapter extends BaseAdapter implements StickyListHeadersAda
 
 		// set header text as first char in name
 		if (position >= assignedApps.size() + recommendedApps.size()) {
-			holder.text.setText("Unrecorded Apps");
+			holder.text.setText(context.getString(R.string.unrecorded_apps));
 		} else if (position >= assignedApps.size()) {
-			holder.text.setText("Recommended Apps");
+			holder.text.setText(context.getString(R.string.recommended_apps));
 		} else {
-			holder.text.setText("Recorded Apps");
+			holder.text.setText(context.getString(R.string.recorded_apps));
 		}
 
 		return convertView;

@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -29,10 +30,11 @@ public class NotificationBuzzerApp extends Application implements Comparator<Res
 	private static final String INSTALL_SHORTCUT_INTENT = "com.android.launcher.action.INSTALL_SHORTCUT";
 	private static final String HOME_SCREEN_ACTIVITY = NotificationBuzzerActivity.class.getSimpleName();
 	private static final String TAG = NotificationBuzzerApp.class.getSimpleName();
-	private static final String APP_PACKAGE = NotificationBuzzerApp.class.getPackage().getName();
 	private static final String DATABASE_FILENAME = BuzzDB.DATABASE_NAME;
 
 	private BuzzDB base;
+	private DrawableManager drawableManager;
+
 	private ArrayList<ResolveInfo> unassignedApps;
 	private ArrayList<ResolveInfo> assignedApps;
 	private ArrayList<ResolveInfo> recommendedApps;
@@ -77,13 +79,14 @@ public class NotificationBuzzerApp extends Application implements Comparator<Res
 		super.onCreate();
 		Log.d(TAG, "onCreate");
 		ACRA.init(this);
-		base = new BuzzDB(this);
-		base.open();
-		refreshAppList();
 		if (isFirstRun()) {
 			Log.d(TAG, "first Run");
 			addShortcutToHomeScreen();
 		}
+		drawableManager = new DrawableManager(getPackageManager());
+		base = new BuzzDB(this);
+		base.open();
+		refreshAppList();
 	}
 
 	public void refreshAppList() {
@@ -157,8 +160,9 @@ public class NotificationBuzzerApp extends Application implements Comparator<Res
 		baseApps.close();
 	}
 
-	private static Map<String, ResolveInfo> filterSystemApps(final List<ResolveInfo> allApps) {
+	private Map<String, ResolveInfo> filterSystemApps(final List<ResolveInfo> allApps) {
 		final Map<String, ResolveInfo> notificationApps = new HashMap<String, ResolveInfo>();
+		final List<ResolveInfo> drawableList = new LinkedList<ResolveInfo>();
 		for (final ResolveInfo rInfo : allApps) {
 
 			final String packageName = rInfo.activityInfo.applicationInfo.packageName;
@@ -170,13 +174,21 @@ public class NotificationBuzzerApp extends Application implements Comparator<Res
 					continue;
 				}
 				notificationApps.put(packageName, rInfo);
+				drawableList.add(rInfo);
 			}
 		}
+		new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				drawableManager.addAll(drawableList);
+			}
+		}).start();
 		return notificationApps;
 	}
 
 	private boolean isFirstRun() {
-		final File file = new File("/data/data/" + APP_PACKAGE + "/databases/" + DATABASE_FILENAME);
+		final File file = new File("/data/data/" + NOTIFICATION_BUZZER_PACKAGE + "/databases/" + DATABASE_FILENAME);
 		return !file.exists();
 	}
 
@@ -215,5 +227,9 @@ public class NotificationBuzzerApp extends Application implements Comparator<Res
 		final String secondLabel = (String) second.loadLabel(pm);
 
 		return firstLabel.compareToIgnoreCase(secondLabel);
+	}
+
+	public DrawableManager getDrawableManager() {
+		return drawableManager;
 	}
 }
