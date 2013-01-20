@@ -143,7 +143,6 @@ public class VibrationPatternDialog extends Dialog implements OnClickListener, C
 		instructions.setText(recordingText);
 		setAcceptButtonEnabled(false);
 		isRecording = true;
-		timer.start();
 	}
 
 	@Override
@@ -153,6 +152,9 @@ public class VibrationPatternDialog extends Dialog implements OnClickListener, C
 			switch (e.getAction()) {
 			case MotionEvent.ACTION_DOWN:
 				Log.d(TAG, "Action down");
+				if (!timer.isRunning()) {
+					timer.start();
+				}
 				vibrator.vibrate(PATTERN, 0);
 				vibrationPattern.updateLastTouched();
 				return true;
