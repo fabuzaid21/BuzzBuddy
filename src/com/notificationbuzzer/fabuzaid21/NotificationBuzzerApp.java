@@ -189,6 +189,17 @@ public class NotificationBuzzerApp extends Application implements Comparator<Res
 
 		for (final String elem : recommendedPackages) {
 			if (allApps.containsKey(elem)) {
+				ResolveInfo current=allApps.get(elem);
+				if(!recommendedApps.contains(current))
+				recommendedApps.add(current);
+				unassignedApps.remove(current);
+			}
+		}
+		
+		for (final String elem : requiredSystemPackages) {
+			if (allApps.containsKey(elem)) {
+				ResolveInfo current=allApps.get(elem);
+				if(!recommendedApps.contains(current))
 				recommendedApps.add(allApps.get(elem));
 				unassignedApps.remove(allApps.get(elem));
 			}
