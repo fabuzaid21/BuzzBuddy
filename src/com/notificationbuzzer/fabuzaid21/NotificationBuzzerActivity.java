@@ -409,9 +409,7 @@ public class NotificationBuzzerActivity extends SherlockListActivity implements 
 		public boolean onCreateActionMode(final ActionMode mode, final Menu menu) {
 			// Inflate a menu resource providing context menu items
 			Log.d(TAG, "inflating checked action menu");
-			
-			
-			
+
 			final MenuInflater inflater = mode.getMenuInflater();
 			inflater.inflate(R.menu.notification_buzzer_menu, menu);
 			return true;
@@ -431,6 +429,9 @@ public class NotificationBuzzerActivity extends SherlockListActivity implements 
 		public boolean onActionItemClicked(final ActionMode mode, final MenuItem item) {
 			switch (item.getItemId()) {
 			case R.id.delete_selections:
+				final Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+				vibrator.cancel();
+				adapter.enabledPlaybackButtons();
 				deleteSelections();
 				isDeleting = true;
 				mode.finish();
