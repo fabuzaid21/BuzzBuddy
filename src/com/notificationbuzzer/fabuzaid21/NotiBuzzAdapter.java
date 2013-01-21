@@ -7,6 +7,7 @@ import java.util.Set;
 import android.content.Context;
 import android.content.pm.ResolveInfo;
 import android.graphics.Rect;
+import android.support.v4.app.Fragment;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.TouchDelegate;
@@ -27,14 +28,16 @@ public class NotiBuzzAdapter extends BaseAdapter implements StickyListHeadersAda
 	private Set<Integer> checkedItems;
 	private final SparseArray<ImageView> playbackViews;
 	private final NotificationBuzzerApp app;
+	private final NotificationBuzzerFragment fragment;
 
-	public NotiBuzzAdapter(final Context context, final List<ResolveInfo> assignedApps,
+	public NotiBuzzAdapter(final Context context, final Fragment fragment, final List<ResolveInfo> assignedApps,
 			final List<ResolveInfo> unassignedApps, final List<ResolveInfo> recommendedApps) {
 		inflater = LayoutInflater.from(context);
 		this.assignedApps = assignedApps;
 		this.unassignedApps = unassignedApps;
 		this.recommendedApps = recommendedApps;
 		this.context = (NotificationBuzzerActivity) context;
+		this.fragment = (NotificationBuzzerFragment) fragment;
 		this.app = (NotificationBuzzerApp) this.context.getApplication();
 		playbackViews = new SparseArray<ImageView>();
 	}
@@ -104,10 +107,10 @@ public class NotiBuzzAdapter extends BaseAdapter implements StickyListHeadersAda
 			playback.setVisibility(View.VISIBLE);
 			checkBox.setVisibility(View.VISIBLE);
 			playback.setTag(position);
-			playback.setOnClickListener(context);
+			playback.setOnClickListener(fragment);
 			checkBox.setTag(position);
 			checkBox.setChecked(checkedItems != null && checkedItems.contains(position));
-			checkBox.setOnCheckedChangeListener(context);
+			checkBox.setOnCheckedChangeListener(fragment);
 			parent.post(new Runnable() {
 				// Post in the parent's message queue to make sure the parent
 				// lays out its children before we call getHitRect()

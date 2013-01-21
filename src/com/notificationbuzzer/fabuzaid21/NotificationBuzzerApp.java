@@ -29,7 +29,7 @@ public class NotificationBuzzerApp extends Application implements Comparator<Res
 
 	private static final String NOTIFICATION_BUZZER_PACKAGE = NotificationBuzzerApp.class.getPackage().getName();
 	private static final String INSTALL_SHORTCUT_INTENT = "com.android.launcher.action.INSTALL_SHORTCUT";
-	private static final String HOME_SCREEN_ACTIVITY = NotificationBuzzerActivity.class.getSimpleName();
+	private static final String HOME_SCREEN_ACTIVITY = NotificationBuzzerFragment.class.getSimpleName();
 	private static final String TAG = NotificationBuzzerApp.class.getSimpleName();
 	private static final String DATABASE_FILENAME = BuzzDB.DATABASE_NAME;
 

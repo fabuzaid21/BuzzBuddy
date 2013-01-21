@@ -17,5 +17,7 @@
     <string name="unrecorded_apps">Unrecorded Apps</string>
     <string name="recommended_apps">Recommended Apps</string>
     <string name="recorded_apps">Recorded Apps</string>
+    <string name="clear">Clear</string>
+    <string name="delete">Delete</string>
 
 </resources>
