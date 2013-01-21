@@ -153,6 +153,7 @@ public class NotificationBuzzerApp extends Application implements Comparator<Res
 
 	public List<ResolveInfo> getAssignedApps() {
 		if (assignedApps == null) {
+			Log.d(TAG, "assignedApps is null");
 			getAppsFromPhone();
 		}
 		return assignedApps;
@@ -160,15 +161,19 @@ public class NotificationBuzzerApp extends Application implements Comparator<Res
 
 	public List<ResolveInfo> getRecommendedApps() {
 		if (recommendedApps == null) {
+			Log.d(TAG, "recommendeApps is null");
 			getAppsFromPhone();
 		}
 		return recommendedApps;
 	}
 
 	private synchronized void getAppsFromPhone() {
+		Log.d(TAG, "entering getAppsFromPhone, thread id = " + Thread.currentThread().getId());
 		if (unassignedApps != null || recommendedApps != null || assignedApps != null) {
+			Log.d(TAG, "we already have the data, let's exit");
 			return;
 		}
+		Log.d(TAG, "do not have data, not exiting getAppsFromPhone");
 		final PackageManager pm = getPackageManager();
 
 		final Intent intent = new Intent(Intent.ACTION_MAIN, null);
