@@ -16,6 +16,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.database.Cursor;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.provider.Settings;
@@ -210,7 +211,11 @@ public class NotificationBuzzerFragment extends SherlockListFragment implements 
 
 	private void enableAccessabilitySettings() {
 		final Intent settingsIntent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
-		settingsIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+			settingsIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		} else {
+			settingsIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+		}
 		startActivity(settingsIntent);
 	}
 
@@ -329,6 +334,7 @@ public class NotificationBuzzerFragment extends SherlockListFragment implements 
 	private ResolveInfo deleteFromRecordedApps(final int position) {
 		final ResolveInfo removed = assignedApps.get(position);
 		final String packageName = removed.activityInfo.applicationInfo.packageName;
+		Log.d(TAG, "deleting package: " + packageName);
 		if (NotificationBuzzerApp.recommendedPackages.contains(packageName)) {
 			recommendedApps.add(removed);
 			return removed;
@@ -417,82 +423,19 @@ public class NotificationBuzzerFragment extends SherlockListFragment implements 
 		final Set<Integer> checked = adapter.getCheckedItems();
 		if (isChecked) {
 			Log.d(TAG, "checkbox checked, position = " + buttonView.getTag());
-			checked.add((Integer) buttonView.getTag());
-			if (checked.size() == 1) {
+			if (checked.size() == 0) {
 				setMenuVisibility(true);
-				// checkedActionMode =
-				// startActionMode(checkedActionModeCallback);
 			}
+			checked.add((Integer) buttonView.getTag());
 		} else {
 			Log.d(TAG, "checkbox unchecked, position = " + buttonView.getTag());
-			checked.remove(buttonView.getTag());
-			if (checked.size() == 0) {
+			if (checked.size() == 1) {
 				if (!forceClear) {
 					setMenuVisibility(false);
-				} else {
-					forceClear = false;
 				}
 			}
+			forceClear = false;
+			checked.remove(buttonView.getTag());
 		}
 	}
-	// if (checkedActionMode != null) {
-	// checkedActionMode.finish();
-	// }
-
-	// private final ActionMode.Callback checkedActionModeCallback = new
-	// ActionMode.Callback() {
-	//
-	// private boolean isDeleting;
-	//
-	// // Called when the action mode is created; startActionMode() was called
-	// @Override
-	// public boolean onCreateActionMode(final ActionMode mode, final Menu menu)
-	// {
-	// // Inflate a menu resource providing context menu items
-	// Log.d(TAG, "inflating checked action menu");
-	//
-	// final MenuInflater inflater = mode.getMenuInflater();
-	// inflater.inflate(R.menu.notification_buzzer_menu, menu);
-	// return true;
-	// }
-	//
-	// // Called each time the action mode is shown. Always called after
-	// // onCreateActionMode, but may be called multiple times if the mode
-	// // is invalidated.
-	// @Override
-	// public boolean onPrepareActionMode(final ActionMode mode, final Menu
-	// menu) {
-	// isDeleting = false;
-	// return true;
-	// }
-	//
-	// // Called when the user selects a contextual menu item
-	// @Override
-	// public boolean onActionItemClicked(final ActionMode mode, final MenuItem
-	// item) {
-	// switch (item.getItemId()) {
-	// case R.id.delete_selections:
-	// final Vibrator vibrator = (Vibrator)
-	// getActivity().getSystemService(Context.VIBRATOR_SERVICE);
-	// vibrator.cancel();
-	// adapter.enabledPlaybackButtons();
-	// deleteSelections();
-	// isDeleting = true;
-	// mode.finish();
-	// return true;
-	// default:
-	// return false;
-	// }
-	//
-	// }
-	//
-	// // Called when the user exits the action mode
-	// @Override
-	// public void onDestroyActionMode(final ActionMode mode) {
-	// if (!isDeleting) {
-	// clearChecks();
-	// }
-	// checkedActionMode = null;
-	// }
-	// };
 }

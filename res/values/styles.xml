@@ -15,8 +15,6 @@
     <!-- Application theme. -->
     <style name="AppTheme" parent="AppBaseTheme">
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
-        
-        <item name="android:actionModeCloseDrawable">@drawable/ic_action_clear</item>
     </style>
 
     <color name="holo_blue_light">#ff33b5e5</color>

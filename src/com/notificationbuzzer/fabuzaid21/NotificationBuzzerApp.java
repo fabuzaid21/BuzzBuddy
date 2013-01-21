@@ -36,7 +36,6 @@ public class NotificationBuzzerApp extends Application implements Comparator<Res
 	private BuzzDB base;
 	private DrawableManager drawableManager;
 
-	private Set<String> requiredSystemPackages;
 	private ArrayList<ResolveInfo> unassignedApps;
 	private ArrayList<ResolveInfo> assignedApps;
 	private ArrayList<ResolveInfo> recommendedApps;
@@ -86,14 +85,13 @@ public class NotificationBuzzerApp extends Application implements Comparator<Res
 			addShortcutToHomeScreen();
 		}
 		drawableManager = new DrawableManager(getPackageManager());
-		requiredSystemPackages = findSystemAppsOnPhone();
+		addSystemAppsToRecommendedPackages();
 		base = new BuzzDB(this);
 		base.open();
 		refreshAppList();
 	}
 
-	private Set<String> findSystemAppsOnPhone() {
-		final Set<String> toReturn = new HashSet<String>();
+	private void addSystemAppsToRecommendedPackages() {
 		final PackageManager pm = getPackageManager();
 		final Intent stockIntent = new Intent();
 		stockIntent.addCategory(Intent.CATEGORY_DEFAULT);
@@ -101,25 +99,27 @@ public class NotificationBuzzerApp extends Application implements Comparator<Res
 		stockIntent.setAction(Intent.ACTION_SENDTO);
 		stockIntent.setType("vnd.android-dir/mms-sms");
 		stockIntent.setData(Uri.parse("sms:2125551234"));
-		addAllPackageStrings(toReturn, pm.queryIntentActivities(stockIntent, PackageManager.MATCH_DEFAULT_ONLY));
+		addAllPackageStrings(recommendedPackages,
+				pm.queryIntentActivities(stockIntent, PackageManager.MATCH_DEFAULT_ONLY));
 
 		stockIntent.setAction(Intent.ACTION_CALL);
 		stockIntent.setType(null);
 		stockIntent.setData(Uri.parse("tel:1234567890"));
-		addAllPackageStrings(toReturn, pm.queryIntentActivities(stockIntent, PackageManager.MATCH_DEFAULT_ONLY));
+		addAllPackageStrings(recommendedPackages,
+				pm.queryIntentActivities(stockIntent, PackageManager.MATCH_DEFAULT_ONLY));
 
 		stockIntent.setAction(Intent.ACTION_SENDTO);
 		stockIntent.setType(null);
 		stockIntent.setData(Uri.parse("mailto:foo@bar.com"));
-		addAllPackageStrings(toReturn, pm.queryIntentActivities(stockIntent, PackageManager.MATCH_DEFAULT_ONLY));
+		addAllPackageStrings(recommendedPackages,
+				pm.queryIntentActivities(stockIntent, PackageManager.MATCH_DEFAULT_ONLY));
 
 		final Intent calendarIntent = new Intent(Intent.ACTION_EDIT);
 		calendarIntent.setType("vnd.android.cursor.item/event");
 		calendarIntent.putExtra("allDay", true);
 		calendarIntent.putExtra("rrule", "FREQ=YEARLY");
-		addAllPackageStrings(toReturn, pm.queryIntentActivities(calendarIntent, PackageManager.MATCH_DEFAULT_ONLY));
-
-		return toReturn;
+		addAllPackageStrings(recommendedPackages,
+				pm.queryIntentActivities(calendarIntent, PackageManager.MATCH_DEFAULT_ONLY));
 	}
 
 	private void addAllPackageStrings(final Set<String> set, final List<ResolveInfo> apps) {
@@ -189,19 +189,11 @@ public class NotificationBuzzerApp extends Application implements Comparator<Res
 
 		for (final String elem : recommendedPackages) {
 			if (allApps.containsKey(elem)) {
-				ResolveInfo current=allApps.get(elem);
-				if(!recommendedApps.contains(current))
-				recommendedApps.add(current);
+				final ResolveInfo current = allApps.get(elem);
+				if (!recommendedApps.contains(current)) {
+					recommendedApps.add(current);
+				}
 				unassignedApps.remove(current);
-			}
-		}
-		
-		for (final String elem : requiredSystemPackages) {
-			if (allApps.containsKey(elem)) {
-				ResolveInfo current=allApps.get(elem);
-				if(!recommendedApps.contains(current))
-				recommendedApps.add(allApps.get(elem));
-				unassignedApps.remove(allApps.get(elem));
 			}
 		}
 
@@ -218,7 +210,7 @@ public class NotificationBuzzerApp extends Application implements Comparator<Res
 			final String packageName = rInfo.activityInfo.applicationInfo.packageName;
 			if (rInfo.activityInfo.applicationInfo.sourceDir.startsWith("/data/app")
 					|| packageName.matches("(com.android.(mms|contacts|calendar|email|phone)|com.google.android.*)")
-					|| requiredSystemPackages.contains(packageName)) {
+					|| recommendedPackages.contains(packageName)) {
 
 				if (packageName.equals(NOTIFICATION_BUZZER_PACKAGE)) {
 					continue;

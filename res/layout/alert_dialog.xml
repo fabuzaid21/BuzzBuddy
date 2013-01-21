@@ -18,7 +18,7 @@
         android:paddingLeft="15dp"
         android:paddingRight="15dp"
         android:paddingTop="18dp"
-        android:text="@string/accessability_settings"
+        android:text="@string/accessibility_settings"
         android:textColor="@color/holo_blue_light"
         android:textSize="23sp" />
 
