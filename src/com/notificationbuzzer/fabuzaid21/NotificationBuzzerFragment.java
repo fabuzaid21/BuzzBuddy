@@ -16,6 +16,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.database.Cursor;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Vibrator;
@@ -55,7 +56,6 @@ public class NotificationBuzzerFragment extends SherlockListFragment implements 
 	private List<ResolveInfo> unassignedApps, assignedApps, recommendedApps;
 	private NotiBuzzAdapter adapter;
 	private StickyListHeadersListView stickyList;
-	// private ActionMode checkedActionMode;
 	private CustomAlertDialog alertDialog;
 	private boolean forceClear = false;
 
@@ -76,13 +76,6 @@ public class NotificationBuzzerFragment extends SherlockListFragment implements 
 	public void onActivityCreated(final Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
-		// Delete Database--for when I update the schema/triggers and need to
-		// test
-		// boolean test
-		// =this.getApplicationContext().deleteDatabase(BuzzDB.DATABASE_NAME);
-
-		// open the database to find apps that have a vibration associated with
-		// them already.
 		final NotificationBuzzerApp app = (NotificationBuzzerApp) getActivity().getApplication();
 		base = app.getDatabase();
 
@@ -90,13 +83,7 @@ public class NotificationBuzzerFragment extends SherlockListFragment implements 
 		stickyList.setOnItemClickListener(this);
 		stickyList.setEmptyView(getActivity().findViewById(R.id.empty_list_view));
 
-		unassignedApps = app.getUnassignedApps();
-		assignedApps = app.getAssignedApps();
-		recommendedApps = app.getRecommendedApps();
-
-		adapter = new NotiBuzzAdapter(getActivity(), this, assignedApps, unassignedApps, recommendedApps);
-
-		stickyList.setAdapter(adapter);
+		new GetListItemsTask().execute();
 	}
 
 	@Override
@@ -134,7 +121,7 @@ public class NotificationBuzzerFragment extends SherlockListFragment implements 
 		adapter.getCheckedItems().clear();
 		// why call notifyDataSetChanged? the data hasn't changed, but we're
 		// asking for the list to be re-rendered anyways. Which means that the
-		// check boxes will all be unchecked (and we make sue they're unchecked
+		// check boxes will all be unchecked (and we make sure they're unchecked
 		// when getView is called)
 		adapter.notifyDataSetChanged();
 	}
@@ -436,6 +423,26 @@ public class NotificationBuzzerFragment extends SherlockListFragment implements 
 			}
 			forceClear = false;
 			checked.remove(buttonView.getTag());
+		}
+	}
+
+	private class GetListItemsTask extends AsyncTask<Void, Void, Void> {
+		@Override
+		protected Void doInBackground(final Void... unused) {
+			final NotificationBuzzerApp app = (NotificationBuzzerApp) NotificationBuzzerFragment.this.getActivity()
+					.getApplication();
+			unassignedApps = app.getUnassignedApps();
+			assignedApps = app.getAssignedApps();
+			recommendedApps = app.getRecommendedApps();
+
+			return (null);
+		}
+
+		@Override
+		protected void onPostExecute(final Void unused) {
+			adapter = new NotiBuzzAdapter(NotificationBuzzerFragment.this.getActivity(),
+					NotificationBuzzerFragment.this, assignedApps, unassignedApps, recommendedApps);
+			stickyList.setAdapter(adapter);
 		}
 	}
 }

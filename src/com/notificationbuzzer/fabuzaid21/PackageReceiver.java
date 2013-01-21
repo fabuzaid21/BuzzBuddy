@@ -8,11 +8,18 @@ import android.util.Log;
 public class PackageReceiver extends BroadcastReceiver {
 
 	private static final String TAG = PackageReceiver.class.getSimpleName();
+	private static final String PACKAGE_NAME = PackageReceiver.class.getPackage().getName();
 
 	@Override
 	public void onReceive(final Context context, final Intent intent) {
-		Log.d(TAG, intent.getData().getEncodedSchemeSpecificPart());
+		final String packageName = intent.getData().getEncodedSchemeSpecificPart();
+		Log.d(TAG, packageName);
 		Log.d(TAG, "Action: " + intent.getAction());
+
+		if (packageName.equals(PACKAGE_NAME)) {
+			// if it's our own package, ignore it
+			return;
+		}
 		final NotificationBuzzerApp app = (NotificationBuzzerApp) context.getApplicationContext();
 		// intent is either pacakge added or package removed
 		if (!intent.getAction().equals(Intent.ACTION_PACKAGE_REPLACED)) {
@@ -22,6 +29,7 @@ public class PackageReceiver extends BroadcastReceiver {
 				return;
 			}
 		}
+		Log.d(TAG, "refreshing app list from PackageReceiver");
 		app.refreshAppList();
 	}
 }
