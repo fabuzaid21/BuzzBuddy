@@ -127,7 +127,7 @@ public class NotificationBuzzerFragment extends SherlockListFragment implements 
 
 	private void hideMenu() {
 		setMenuVisibility(false);
-		forceClear = true;
+		forceClear = adapter.getCheckedItemsSize() > 0;
 	}
 
 	private void clearChecks() {
