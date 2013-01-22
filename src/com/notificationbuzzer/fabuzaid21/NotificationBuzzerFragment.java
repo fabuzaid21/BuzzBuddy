@@ -1,5 +1,6 @@
 package com.notificationbuzzer.fabuzaid21;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
@@ -81,7 +82,10 @@ public class NotificationBuzzerFragment extends SherlockListFragment implements 
 
 		stickyList = (StickyListHeadersListView) getListView();
 		stickyList.setOnItemClickListener(this);
-		stickyList.setEmptyView(getActivity().findViewById(R.id.empty_list_view));
+			
+		//stickyList.setAdapter(new NotiBuzzAdapter(NotificationBuzzerFragment.this.getActivity(),
+			//		NotificationBuzzerFragment.this, new ArrayList<ResolveInfo>(), new ArrayList<ResolveInfo>(), new ArrayList<ResolveInfo>()));
+		stickyList.setEmptyView(getActivity().findViewById(R.id.empty));
 
 		new GetListItemsTask().execute();
 	}

@@ -15,18 +15,11 @@
         android:listSelector="@drawable/list_selector" >
     </com.emilsjolander.components.stickylistheaders.StickyListHeadersListView>
 
-    <LinearLayout
-        android:id="@+id/empty_list_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical"
-        android:orientation="vertical" >
-
-        <ProgressBar
-            android:id="@android:id/progress"
+           <ProgressBar
+            android:id="@+id/empty"
             style="?android:attr/progressBarStyleLarge"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
-    </LinearLayout>
+  
 
 </LinearLayout>
