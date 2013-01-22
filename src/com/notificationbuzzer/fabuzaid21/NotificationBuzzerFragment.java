@@ -81,8 +81,6 @@ public class NotificationBuzzerFragment extends SherlockListFragment implements 
 
 		stickyList = (StickyListHeadersListView) getListView();
 		stickyList.setOnItemClickListener(this);
-
-		new GetListItemsTask().execute();
 	}
 
 	@Override
@@ -156,6 +154,7 @@ public class NotificationBuzzerFragment extends SherlockListFragment implements 
 	@Override
 	public void onResume() {
 		super.onResume();
+		new GetListItemsTask().execute();
 		// open accessibility menu
 		checkAccessibility();
 	}
