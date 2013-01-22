@@ -66,14 +66,25 @@ public class NotificationBuzzerApp extends Application implements Comparator<Res
 		}
 	};
 
-	private final Runnable appListRunnable = new Runnable() {
+	private final class AppListThread extends Thread {
+
+		private final String packageToDelete;
+
+		public AppListThread(final String packageName) {
+			super();
+			packageToDelete = packageName;
+		}
 
 		@Override
 		public void run() {
+			if (packageToDelete != null) {
+				Log.d(TAG, "deleting package " + packageToDelete + " from database, since app was just deleted");
+				base.deleteByPackageName(packageToDelete);
+			}
 			unassignedApps = assignedApps = recommendedApps = null;
 			getAppsFromPhone();
 		}
-	};
+	}
 
 	@Override
 	public void onCreate() {
@@ -88,7 +99,7 @@ public class NotificationBuzzerApp extends Application implements Comparator<Res
 		addSystemAppsToRecommendedPackages();
 		base = new BuzzDB(this);
 		base.open();
-		refreshAppList();
+		refreshAppList(null);
 	}
 
 	private void addSystemAppsToRecommendedPackages() {
@@ -128,8 +139,8 @@ public class NotificationBuzzerApp extends Application implements Comparator<Res
 		}
 	}
 
-	public void refreshAppList() {
-		new Thread(appListRunnable).start();
+	public void refreshAppList(final String packageToDelete) {
+		new AppListThread(packageToDelete).start();
 	}
 
 	public List<ResolveInfo> getUnassignedApps() {

@@ -14,14 +14,18 @@ public class PackageReceiver extends BroadcastReceiver {
 		Log.d(TAG, intent.getData().getEncodedSchemeSpecificPart());
 		Log.d(TAG, "Action: " + intent.getAction());
 		final NotificationBuzzerApp app = (NotificationBuzzerApp) context.getApplicationContext();
-		// intent is either pacakge added or package removed
-		if (!intent.getAction().equals(Intent.ACTION_PACKAGE_REPLACED)) {
-			// check to make sure this is not happening because of an update
-			if (intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)) {
-				Log.d(TAG, "app is being replaced (updated), not added");
-				return;
-			}
+
+		// check to make sure this is not happening because of an update
+		if (intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)) {
+			Log.d(TAG, "app is being replaced (updated), not added");
+			return;
 		}
-		app.refreshAppList();
+		if (intent.getAction().equals(Intent.ACTION_PACKAGE_REMOVED)) {
+			// pass in package name so that it can be deleted from the
+			// database
+			app.refreshAppList(intent.getData().getEncodedSchemeSpecificPart());
+		} else {
+			app.refreshAppList(null);
+		}
 	}
 }
