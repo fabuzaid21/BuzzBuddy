@@ -23,7 +23,7 @@ public class PackageReceiver extends BroadcastReceiver {
 		final NotificationBuzzerApp app = (NotificationBuzzerApp) context.getApplicationContext();
 
 		// check to make sure this is not happening because of an update
-		if (intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)) {
+		if (intent.getBooleanExtra(Intent.EXTRA_REPLACING, false) && !intent.getAction().equals(Intent.ACTION_PACKAGE_REPLACED)) {
 			Log.d(TAG, "app is being replaced (updated), not added");
 			return;
 		}
