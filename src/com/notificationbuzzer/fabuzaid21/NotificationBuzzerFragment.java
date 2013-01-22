@@ -81,7 +81,6 @@ public class NotificationBuzzerFragment extends SherlockListFragment implements 
 
 		stickyList = (StickyListHeadersListView) getListView();
 		stickyList.setOnItemClickListener(this);
-		stickyList.setEmptyView(getActivity().findViewById(R.id.empty_list_view));
 
 		new GetListItemsTask().execute();
 	}
