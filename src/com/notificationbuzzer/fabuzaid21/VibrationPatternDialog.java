@@ -2,6 +2,7 @@ package com.notificationbuzzer.fabuzaid21;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
@@ -43,10 +44,12 @@ public class VibrationPatternDialog extends Dialog implements OnClickListener, C
 	private ImageView titleIcon;
 	private ResolveInfo currentApp;
 	private final PackageManager packageManager;
+	private final DrawableManager drawableManager;
 
 	public VibrationPatternDialog(final Context context, final int theme) {
 		super(context, theme);
 		Log.d(TAG, "constructor");
+		drawableManager = ((NotificationBuzzerApp) context.getApplicationContext()).getDrawableManager();
 		res = context.getResources();
 		packageManager = context.getPackageManager();
 		generalInstructions = res.getString(R.string.vibration_pattern_explanation);
@@ -80,8 +83,9 @@ public class VibrationPatternDialog extends Dialog implements OnClickListener, C
 	protected void onStart() {
 		super.onStart();
 		Log.d(TAG, "onStart");
-		titleText.setText(currentApp.loadLabel(packageManager));
-		titleIcon.setImageDrawable(currentApp.loadIcon(packageManager));
+		final ApplicationInfo applicationInfo = currentApp.activityInfo.applicationInfo;
+		titleText.setText(applicationInfo.loadLabel(packageManager));
+		titleIcon.setImageDrawable(drawableManager.fetchDrawable(applicationInfo.packageName, currentApp));
 		setInitialMode();
 	}
 

@@ -2,6 +2,7 @@ package com.notificationbuzzer.fabuzaid21;
 
 import java.util.List;
 
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.drawable.Drawable;
@@ -29,15 +30,16 @@ public class DrawableManager {
 				return drawable;
 			}
 			Log.d(TAG, packageName + " drawable was not found");
-			final Drawable icon = rInfo.loadIcon(packageManager);
-			drawableCache.put(rInfo.activityInfo.applicationInfo.packageName, icon);
+			final ApplicationInfo applicationInfo = rInfo.activityInfo.applicationInfo;
+			final Drawable icon = applicationInfo.loadIcon(packageManager);
+			drawableCache.put(applicationInfo.packageName, icon);
 			return icon;
 		}
 	}
 
 	private synchronized void add(final String packageName, final ResolveInfo rInfo, final PackageManager pm) {
 		synchronized (drawableCache) {
-			drawableCache.put(packageName, rInfo.loadIcon(pm));
+			drawableCache.put(packageName, rInfo.activityInfo.applicationInfo.loadIcon(pm));
 		}
 	}
 

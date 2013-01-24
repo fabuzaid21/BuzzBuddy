@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Set;
 
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.ResolveInfo;
 import android.graphics.Rect;
 import android.support.v4.app.Fragment;
@@ -94,9 +95,10 @@ public class NotiBuzzAdapter extends BaseAdapter implements StickyListHeadersAda
 
 		final ViewHolder holder = (ViewHolder) view.getTag();
 		final ResolveInfo item = getItemFromLists(position);
-		holder.icon.setImageDrawable(app.getDrawableManager().fetchDrawable(
-				item.activityInfo.applicationInfo.packageName, item));
-		holder.appName.setText(item.loadLabel(context.getPackageManager()));
+		final ApplicationInfo applicationInfo = item.activityInfo.applicationInfo;
+
+		holder.icon.setImageDrawable(app.getDrawableManager().fetchDrawable(applicationInfo.packageName, item));
+		holder.appName.setText(applicationInfo.loadLabel(context.getPackageManager()));
 
 		final CheckBox checkBox = holder.checkBox;
 		final ImageView playback = holder.playback;
