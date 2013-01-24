@@ -282,8 +282,8 @@ public class NotificationBuzzerApp extends Application implements Comparator<Res
 	public int compare(final ResolveInfo first, final ResolveInfo second) {
 		final PackageManager pm = getPackageManager();
 
-		final String firstLabel = (String) first.loadLabel(pm);
-		final String secondLabel = (String) second.loadLabel(pm);
+		final String firstLabel = (String) first.activityInfo.applicationInfo.loadLabel(pm);
+		final String secondLabel = (String) second.activityInfo.applicationInfo.loadLabel(pm);
 
 		return firstLabel.compareToIgnoreCase(secondLabel);
 	}
