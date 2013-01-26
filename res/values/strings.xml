@@ -19,5 +19,6 @@
     <string name="recorded_apps">Recorded Apps</string>
     <string name="clear">Clear</string>
     <string name="delete">Delete</string>
+    <string name="loading">Loading</string>
 
 </resources>
