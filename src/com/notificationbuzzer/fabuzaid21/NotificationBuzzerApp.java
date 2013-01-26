@@ -17,6 +17,7 @@ import org.acra.annotation.ReportsCrashes;
 import android.app.Application;
 import android.content.ComponentName;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.database.Cursor;
@@ -29,7 +30,7 @@ public class NotificationBuzzerApp extends Application implements Comparator<Res
 
 	private static final String NOTIFICATION_BUZZER_PACKAGE = NotificationBuzzerApp.class.getPackage().getName();
 	private static final String INSTALL_SHORTCUT_INTENT = "com.android.launcher.action.INSTALL_SHORTCUT";
-	private static final String HOME_SCREEN_ACTIVITY = NotificationBuzzerFragment.class.getSimpleName();
+	private static final String HOME_SCREEN_ACTIVITY = NotificationBuzzerActivity.class.getSimpleName();
 	private static final String TAG = NotificationBuzzerApp.class.getSimpleName();
 	private static final String DATABASE_FILENAME = BuzzDB.DATABASE_NAME;
 
@@ -224,7 +225,7 @@ public class NotificationBuzzerApp extends Application implements Comparator<Res
 		for (final ResolveInfo rInfo : allApps) {
 
 			final String packageName = rInfo.activityInfo.applicationInfo.packageName;
-			if (rInfo.activityInfo.applicationInfo.sourceDir.startsWith("/data/app")
+			if ((rInfo.activityInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 1
 					|| packageName.matches("(com.android.(mms|contacts|calendar|email|phone)|com.google.android.*)")
 					|| recommendedPackages.contains(packageName)) {
 
@@ -246,7 +247,7 @@ public class NotificationBuzzerApp extends Application implements Comparator<Res
 	}
 
 	private boolean isFirstRun() {
-		final File file = new File("/data/data/" + NOTIFICATION_BUZZER_PACKAGE + "/databases/" + DATABASE_FILENAME);
+		final File file = new File(getDatabasePath(DATABASE_FILENAME).getAbsolutePath());
 		return !file.exists();
 	}
 
