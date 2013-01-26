@@ -1,31 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical" >
-
-    <com.emilsjolander.components.stickylistheaders.StickyListHeadersListView
-        android:id="@android:id/list"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:cacheColorHint="#ffffff"
-        android:divider="@drawable/divider_vertical_dark"
-        android:dividerHeight="1dp"
-        android:listSelector="@drawable/list_selector" >
-    </com.emilsjolander.components.stickylistheaders.StickyListHeadersListView>
+    android:layout_height="match_parent" >
 
     <LinearLayout
-        android:id="@android:id/empty"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:orientation="vertical" >
+
+        <com.emilsjolander.components.stickylistheaders.StickyListHeadersListView
+            android:id="@+id/data_list_view"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:cacheColorHint="#ffffff"
+            android:divider="@drawable/divider_vertical_dark"
+            android:dividerHeight="1dp"
+            android:listSelector="@drawable/list_selector" >
+        </com.emilsjolander.components.stickylistheaders.StickyListHeadersListView>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/empty_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="#eeeeee"
         android:orientation="vertical" >
 
         <ProgressBar
-            android:id="@android:id/progress"
             style="?android:attr/progressBarStyleLarge"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
     </LinearLayout>
 
-</LinearLayout>
+</FrameLayout>

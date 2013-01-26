@@ -33,13 +33,13 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 
-import com.actionbarsherlock.app.SherlockListFragment;
+import com.actionbarsherlock.app.SherlockFragment;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.emilsjolander.components.stickylistheaders.StickyListHeadersListView;
 
-public class NotificationBuzzerFragment extends SherlockListFragment implements OnItemClickListener, OnDismissListener,
+public class NotificationBuzzerFragment extends SherlockFragment implements OnItemClickListener, OnDismissListener,
 		OnCancelListener, Comparator<ResolveInfo>, OnClickListener, OnCheckedChangeListener {
 
 	private static final String NOTIFICATION_BUZZER_PACKAGE = NotificationBuzzerFragment.class.getPackage().getName();
@@ -58,6 +58,7 @@ public class NotificationBuzzerFragment extends SherlockListFragment implements 
 	private StickyListHeadersListView stickyList;
 	private CustomAlertDialog alertDialog;
 	private boolean forceClear = false;
+	private View loadingSpinner;
 
 	@Override
 	public View onCreateView(final LayoutInflater inflater, final ViewGroup container, final Bundle savedInstanceState) {
@@ -79,7 +80,8 @@ public class NotificationBuzzerFragment extends SherlockListFragment implements 
 		final NotificationBuzzerApp app = (NotificationBuzzerApp) getActivity().getApplication();
 		base = app.getDatabase();
 
-		stickyList = (StickyListHeadersListView) getListView();
+		loadingSpinner = getActivity().findViewById(R.id.empty_view);
+		stickyList = (StickyListHeadersListView) getActivity().findViewById(R.id.data_list_view);
 		stickyList.setOnItemClickListener(this);
 	}
 
@@ -441,6 +443,7 @@ public class NotificationBuzzerFragment extends SherlockListFragment implements 
 			adapter = new NotiBuzzAdapter(NotificationBuzzerFragment.this.getActivity(),
 					NotificationBuzzerFragment.this, assignedApps, unassignedApps, recommendedApps);
 			stickyList.setAdapter(adapter);
+			loadingSpinner.setVisibility(View.GONE);
 		}
 	}
 }
