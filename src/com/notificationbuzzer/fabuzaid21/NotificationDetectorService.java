@@ -23,13 +23,14 @@ public class NotificationDetectorService extends AccessibilityService {
 	@Override
 	public void onAccessibilityEvent(final AccessibilityEvent event) {
 		Log.d(TAG, "onAccessibilityEvent");
-		
-		final int vibrateSetting = audioManager.getVibrateSetting(AudioManager.VIBRATE_TYPE_NOTIFICATION);
-		audioManager.setVibrateSetting(AudioManager.VIBRATE_TYPE_NOTIFICATION, AudioManager.VIBRATE_SETTING_OFF);
-		
+
 		if (audioManager.getRingerMode() == AudioManager.RINGER_MODE_SILENT) {
 			return;
 		}
+
+		final int vibrateSetting = audioManager.getVibrateSetting(AudioManager.VIBRATE_TYPE_NOTIFICATION);
+		audioManager.setVibrateSetting(AudioManager.VIBRATE_TYPE_NOTIFICATION, AudioManager.VIBRATE_SETTING_OFF);
+
 		String packageName = String.valueOf(event.getPackageName());
 		Log.d(TAG, packageName);
 		if (event.getEventType() == AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED) {
@@ -50,12 +51,12 @@ public class NotificationDetectorService extends AccessibilityService {
 			final Cursor resultSet = base.queryByPackageName(packageName);
 			resultSet.moveToFirst();
 			if (resultSet.getCount() > 0) {
-				
+
 				final String patternString = resultSet.getString(BuzzDB.APP_INDEX_VIBRATION);
 				final long[] vibrationPattern = deserializePattern(patternString);
 				Log.d(TAG, "playing vibration pattern!");
 				vibrator.vibrate(vibrationPattern, -1);
-				
+
 			}
 			resultSet.close();
 			audioManager.setVibrateSetting(AudioManager.VIBRATE_TYPE_NOTIFICATION, vibrateSetting);
