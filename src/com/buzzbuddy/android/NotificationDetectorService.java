@@ -53,7 +53,7 @@ public class NotificationDetectorService extends AccessibilityService {
 			if (resultSet.getCount() > 0) {
 
 				final String patternString = resultSet.getString(BuzzDB.APP_INDEX_VIBRATION);
-				final long[] vibrationPattern = deserializePattern(patternString);
+				final long[] vibrationPattern = VibrationPatternUtils.deserializePattern(patternString);
 				Log.d(TAG, "playing vibration pattern!");
 				vibrator.vibrate(vibrationPattern, -1);
 
@@ -61,15 +61,6 @@ public class NotificationDetectorService extends AccessibilityService {
 			resultSet.close();
 			audioManager.setVibrateSetting(AudioManager.VIBRATE_TYPE_NOTIFICATION, vibrateSetting);
 		}
-	}
-
-	static long[] deserializePattern(final String patternString) {
-		final String[] temp = patternString.split("-");
-		final long[] toReturn = new long[temp.length];
-		for (int i = 0; i < temp.length; ++i) {
-			toReturn[i] = Long.parseLong(temp[i]);
-		}
-		return toReturn;
 	}
 
 	@Override

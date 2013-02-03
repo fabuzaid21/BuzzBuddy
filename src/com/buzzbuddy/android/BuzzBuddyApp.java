@@ -79,7 +79,7 @@ public class BuzzBuddyApp extends Application implements Comparator<ResolveInfo>
 		@Override
 		public void run() {
 			if (packageToDelete != null) {
-				Log.d(TAG, "deleting package " + packageToDelete + " from database, since app was just deleted");
+				Log.i(TAG, "deleting package " + packageToDelete + " from database, since app was just deleted");
 				base.deleteByPackageName(packageToDelete);
 			}
 			unassignedApps = assignedApps = recommendedApps = null;
@@ -90,10 +90,12 @@ public class BuzzBuddyApp extends Application implements Comparator<ResolveInfo>
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		Log.d(TAG, "onCreate");
+		if (BuildConfig.DEBUG) {
+			Log.d(TAG, "onCreate");
+		}
 		ACRA.init(this);
 		if (isFirstRun()) {
-			Log.d(TAG, "first Run");
+			Log.i(TAG, "first Run");
 			addShortcutToHomeScreen();
 		}
 		drawableManager = new DrawableManager(getPackageManager());
@@ -146,7 +148,7 @@ public class BuzzBuddyApp extends Application implements Comparator<ResolveInfo>
 
 	public List<ResolveInfo> getUnassignedApps() {
 		if (unassignedApps == null) {
-			Log.d(TAG, "unassignedApps is null");
+			Log.i(TAG, "unassignedApps is null");
 			getAppsFromPhone();
 		}
 		return unassignedApps;
@@ -154,7 +156,7 @@ public class BuzzBuddyApp extends Application implements Comparator<ResolveInfo>
 
 	public List<ResolveInfo> getAssignedApps() {
 		if (assignedApps == null) {
-			Log.d(TAG, "assignedApps is null");
+			Log.i(TAG, "assignedApps is null");
 			getAppsFromPhone();
 		}
 		return assignedApps;
@@ -162,19 +164,21 @@ public class BuzzBuddyApp extends Application implements Comparator<ResolveInfo>
 
 	public List<ResolveInfo> getRecommendedApps() {
 		if (recommendedApps == null) {
-			Log.d(TAG, "recommendeApps is null");
+			Log.i(TAG, "recommendeApps is null");
 			getAppsFromPhone();
 		}
 		return recommendedApps;
 	}
 
 	private synchronized void getAppsFromPhone() {
-		Log.d(TAG, "entering getAppsFromPhone, thread id = " + Thread.currentThread().getId());
+		if (BuildConfig.DEBUG) {
+			Log.d(TAG, "entering getAppsFromPhone, thread id = " + Thread.currentThread().getId());
+		}
 		if (unassignedApps != null || recommendedApps != null || assignedApps != null) {
-			Log.d(TAG, "we already have the data, let's exit");
+			Log.i(TAG, "we already have the data, let's exit");
 			return;
 		}
-		Log.d(TAG, "do not have data, not exiting getAppsFromPhone");
+		Log.i(TAG, "do not have data, not exiting getAppsFromPhone");
 		final PackageManager pm = getPackageManager();
 
 		final Intent intent = new Intent(Intent.ACTION_MAIN, null);

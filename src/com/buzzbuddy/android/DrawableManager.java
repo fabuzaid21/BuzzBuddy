@@ -26,10 +26,10 @@ public class DrawableManager {
 		synchronized (drawableCache) {
 			final Drawable drawable = drawableCache.get(packageName);
 			if (drawable != null) {
-				Log.d(TAG, packageName + " found drawable");
+				Log.d(TAG, "FOUND " + packageName);
 				return drawable;
 			}
-			Log.d(TAG, packageName + " drawable was not found");
+			Log.d(TAG, packageName + " NOT found");
 			final ApplicationInfo applicationInfo = rInfo.activityInfo.applicationInfo;
 			final Drawable icon = applicationInfo.loadIcon(packageManager);
 			drawableCache.put(applicationInfo.packageName, icon);
