@@ -1,4 +1,4 @@
-package com.notificationbuzzer.fabuzaid21;
+package com.buzzbuddy.android;
 
 import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.AccessibilityServiceInfo;
@@ -77,7 +77,7 @@ public class NotificationDetectorService extends AccessibilityService {
 		Log.d(TAG, "onServiceConnected");
 		vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 		audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-		base = ((NotificationBuzzerApp) getApplication()).getDatabase();
+		base = ((BuzzBuddyApp) getApplication()).getDatabase();
 
 		final AccessibilityServiceInfo info = new AccessibilityServiceInfo();
 		info.eventTypes = AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED;

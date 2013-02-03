@@ -1,4 +1,4 @@
-package com.notificationbuzzer.fabuzaid21;
+package com.buzzbuddy.android;
 
 import java.util.Calendar;
 import java.util.Collections;
@@ -39,14 +39,14 @@ import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.emilsjolander.components.stickylistheaders.StickyListHeadersListView;
 
-public class NotificationBuzzerFragment extends SherlockListFragment implements OnItemClickListener, OnDismissListener,
+public class BuzzBuddyFragment extends SherlockListFragment implements OnItemClickListener, OnDismissListener,
 		OnCancelListener, Comparator<ResolveInfo>, OnClickListener, OnCheckedChangeListener {
 
-	private static final String NOTIFICATION_BUZZER_PACKAGE = NotificationBuzzerFragment.class.getPackage().getName();
-	private static final String ACTIVITY_NAME = NotificationBuzzerFragment.class.getSimpleName();
+	private static final String BUZZ_BUDDY_PACKAGE = BuzzBuddyFragment.class.getPackage().getName();
+	private static final String ACTIVITY_NAME = BuzzBuddyFragment.class.getSimpleName();
 	private static final String TAG = ACTIVITY_NAME;
-	private static final String ACCESSIBILITY_SERVICE_NAME = NOTIFICATION_BUZZER_PACKAGE + "/"
-			+ NOTIFICATION_BUZZER_PACKAGE + "." + NotificationDetectorService.class.getSimpleName();
+	private static final String ACCESSIBILITY_SERVICE_NAME = BUZZ_BUDDY_PACKAGE + "/" + BUZZ_BUDDY_PACKAGE + "."
+			+ NotificationDetectorService.class.getSimpleName();
 
 	private BuzzDB base;
 	private VibrationPatternDialog vibrationPatternDialog;
@@ -54,7 +54,7 @@ public class NotificationBuzzerFragment extends SherlockListFragment implements 
 	private boolean isCanceled;
 	private int listPosition;
 	private List<ResolveInfo> unassignedApps, assignedApps, recommendedApps;
-	private NotiBuzzAdapter adapter;
+	private BuzzBuddyAdapter adapter;
 	private StickyListHeadersListView stickyList;
 	private CustomAlertDialog alertDialog;
 	private boolean forceClear = false;
@@ -62,7 +62,7 @@ public class NotificationBuzzerFragment extends SherlockListFragment implements 
 	@Override
 	public View onCreateView(final LayoutInflater inflater, final ViewGroup container, final Bundle savedInstanceState) {
 		// Inflate the layout for this fragment
-		return inflater.inflate(R.layout.fragment_notification_buzzer, container, false);
+		return inflater.inflate(R.layout.fragment_buzz_buddy, container, false);
 	}
 
 	@Override
@@ -76,7 +76,7 @@ public class NotificationBuzzerFragment extends SherlockListFragment implements 
 	public void onActivityCreated(final Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
-		final NotificationBuzzerApp app = (NotificationBuzzerApp) getActivity().getApplication();
+		final BuzzBuddyApp app = (BuzzBuddyApp) getActivity().getApplication();
 		base = app.getDatabase();
 
 		stickyList = (StickyListHeadersListView) getListView();
@@ -85,7 +85,7 @@ public class NotificationBuzzerFragment extends SherlockListFragment implements 
 
 	@Override
 	public void onCreateOptionsMenu(final Menu menu, final MenuInflater inflater) {
-		inflater.inflate(R.menu.notification_buzzer_menu, menu);
+		inflater.inflate(R.menu.menu_buzz_buddy, menu);
 		Log.d(TAG, "onCreateOptionsMenu");
 	}
 
@@ -320,7 +320,7 @@ public class NotificationBuzzerFragment extends SherlockListFragment implements 
 		final ResolveInfo removed = assignedApps.get(position);
 		final String packageName = removed.activityInfo.applicationInfo.packageName;
 		Log.d(TAG, "deleting package: " + packageName);
-		if (NotificationBuzzerApp.recommendedPackages.contains(packageName)) {
+		if (BuzzBuddyApp.recommendedPackages.contains(packageName)) {
 			recommendedApps.add(removed);
 			return removed;
 		}
@@ -427,8 +427,7 @@ public class NotificationBuzzerFragment extends SherlockListFragment implements 
 	private class GetListItemsTask extends AsyncTask<Void, Void, Void> {
 		@Override
 		protected Void doInBackground(final Void... unused) {
-			final NotificationBuzzerApp app = (NotificationBuzzerApp) NotificationBuzzerFragment.this.getActivity()
-					.getApplication();
+			final BuzzBuddyApp app = (BuzzBuddyApp) BuzzBuddyFragment.this.getActivity().getApplication();
 			unassignedApps = app.getUnassignedApps();
 			assignedApps = app.getAssignedApps();
 			recommendedApps = app.getRecommendedApps();
@@ -438,8 +437,8 @@ public class NotificationBuzzerFragment extends SherlockListFragment implements 
 
 		@Override
 		protected void onPostExecute(final Void unused) {
-			adapter = new NotiBuzzAdapter(NotificationBuzzerFragment.this.getActivity(),
-					NotificationBuzzerFragment.this, assignedApps, unassignedApps, recommendedApps);
+			adapter = new BuzzBuddyAdapter(BuzzBuddyFragment.this.getActivity(), BuzzBuddyFragment.this, assignedApps,
+					unassignedApps, recommendedApps);
 			stickyList.setAdapter(adapter);
 		}
 	}

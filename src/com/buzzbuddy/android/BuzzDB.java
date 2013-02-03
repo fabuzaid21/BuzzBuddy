@@ -1,4 +1,4 @@
-package com.notificationbuzzer.fabuzaid21;
+package com.buzzbuddy.android;
 
 import android.content.ContentValues;
 import android.content.Context;

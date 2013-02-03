@@ -1,4 +1,6 @@
-package com.notificationbuzzer.fabuzaid21;
+package com.buzzbuddy.android;
+
+import com.buzzbuddy.android.R;
 
 import android.app.Dialog;
 import android.content.Context;

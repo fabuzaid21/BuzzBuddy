@@ -1,14 +1,16 @@
-package com.notificationbuzzer.fabuzaid21;
+package com.buzzbuddy.android;
 
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.util.Log;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.buzzbuddy.android.BuildConfig;
+import com.buzzbuddy.android.R;
 
-public class NotificationBuzzerActivity extends SherlockFragmentActivity {
+public class BuzzBuddyActivity extends SherlockFragmentActivity {
 
-	private static final String TAG = NotificationBuzzerActivity.class.getSimpleName();
+	private static final String TAG = BuzzBuddyActivity.class.getSimpleName();
 
 	@Override
 	protected void onCreate(final Bundle savedInstanceState) {
@@ -20,9 +22,9 @@ public class NotificationBuzzerActivity extends SherlockFragmentActivity {
 		}
 		super.onCreate(savedInstanceState);
 		Log.d(TAG, "onCreate");
-		setContentView(R.layout.activity_notification_buzzer);
+		setContentView(R.layout.activity_buzz_buddy);
 
-		final NotificationBuzzerFragment fragment = new NotificationBuzzerFragment();
+		final BuzzBuddyFragment fragment = new BuzzBuddyFragment();
 		getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, fragment).commit();
 	}
 }

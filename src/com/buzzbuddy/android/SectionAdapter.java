@@ -1,7 +1,9 @@
-package com.notificationbuzzer.fabuzaid21;
+package com.buzzbuddy.android;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import com.buzzbuddy.android.R;
 
 import android.content.Context;
 import android.view.View;

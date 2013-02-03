@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">NotificationBuzzer</string>
+    <string name="app_name">Buzz\nBuddy</string>
     <string name="service_description">Change the vibration pattern for your various notifications</string>
     <string name="vibration_pattern_explanation">Tap the record button to begin recording your vibration pattern.</string>
     <string name="vibration_pattern_tapping">Tap anywhere on the screen to record your pattern.</string>
-    <string name="activate_accessability_settings">You need to activate accessability settings to use Notification Buzzer.</string>
+    <string name="activate_accessability_settings">You need to activate accessability settings to use Buzz Buddy.</string>
     <string name="icon_image">Icon image</string>
     <string name="cancel">Cancel</string>
     <string name="accept">Accept</string>

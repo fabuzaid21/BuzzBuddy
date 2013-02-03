@@ -75,7 +75,7 @@
         android:contentDescription="@string/record"
         android:src="@drawable/record_or_stop" />
 
-    <com.notificationbuzzer.fabuzaid21.TimerTextView
+    <com.buzzbuddy.android.TimerTextView
         android:id="@+id/timer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

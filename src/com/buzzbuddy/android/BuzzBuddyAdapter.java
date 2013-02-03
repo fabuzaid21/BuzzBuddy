@@ -1,4 +1,4 @@
-package com.notificationbuzzer.fabuzaid21;
+package com.buzzbuddy.android;
 
 import java.util.HashSet;
 import java.util.List;
@@ -19,27 +19,28 @@ import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.buzzbuddy.android.R;
 import com.emilsjolander.components.stickylistheaders.StickyListHeadersAdapter;
 
-public class NotiBuzzAdapter extends BaseAdapter implements StickyListHeadersAdapter {
+public class BuzzBuddyAdapter extends BaseAdapter implements StickyListHeadersAdapter {
 
 	private final List<ResolveInfo> assignedApps, unassignedApps, recommendedApps;
 	private final LayoutInflater inflater;
-	private final NotificationBuzzerActivity context;
+	private final BuzzBuddyActivity context;
 	private Set<Integer> checkedItems;
 	private final SparseArray<ImageView> playbackViews;
-	private final NotificationBuzzerApp app;
-	private final NotificationBuzzerFragment fragment;
+	private final BuzzBuddyApp app;
+	private final BuzzBuddyFragment fragment;
 
-	public NotiBuzzAdapter(final Context context, final Fragment fragment, final List<ResolveInfo> assignedApps,
+	public BuzzBuddyAdapter(final Context context, final Fragment fragment, final List<ResolveInfo> assignedApps,
 			final List<ResolveInfo> unassignedApps, final List<ResolveInfo> recommendedApps) {
 		inflater = LayoutInflater.from(context);
 		this.assignedApps = assignedApps;
 		this.unassignedApps = unassignedApps;
 		this.recommendedApps = recommendedApps;
-		this.context = (NotificationBuzzerActivity) context;
-		this.fragment = (NotificationBuzzerFragment) fragment;
-		this.app = (NotificationBuzzerApp) this.context.getApplication();
+		this.context = (BuzzBuddyActivity) context;
+		this.fragment = (BuzzBuddyFragment) fragment;
+		this.app = (BuzzBuddyApp) this.context.getApplication();
 		playbackViews = new SparseArray<ImageView>();
 	}
 

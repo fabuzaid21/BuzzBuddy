@@ -1,4 +1,4 @@
-package com.notificationbuzzer.fabuzaid21;
+package com.buzzbuddy.android;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -26,12 +26,12 @@ import android.util.Log;
 
 @ReportsCrashes(formKey = "dDhUXzBZT1VmWEYtbDMwazlGa2loRlE6MQ", logcatArguments = { "-t", "150", "-v", "long",
 		"dalvikvm:S" })
-public class NotificationBuzzerApp extends Application implements Comparator<ResolveInfo> {
+public class BuzzBuddyApp extends Application implements Comparator<ResolveInfo> {
 
-	private static final String NOTIFICATION_BUZZER_PACKAGE = NotificationBuzzerApp.class.getPackage().getName();
+	private static final String BUZZ_BUDDY_PACKAGE = BuzzBuddyApp.class.getPackage().getName();
 	private static final String INSTALL_SHORTCUT_INTENT = "com.android.launcher.action.INSTALL_SHORTCUT";
-	private static final String HOME_SCREEN_ACTIVITY = NotificationBuzzerActivity.class.getSimpleName();
-	private static final String TAG = NotificationBuzzerApp.class.getSimpleName();
+	private static final String HOME_SCREEN_ACTIVITY = BuzzBuddyActivity.class.getSimpleName();
+	private static final String TAG = BuzzBuddyApp.class.getSimpleName();
 	private static final String DATABASE_FILENAME = BuzzDB.DATABASE_NAME;
 
 	private BuzzDB base;
@@ -229,7 +229,7 @@ public class NotificationBuzzerApp extends Application implements Comparator<Res
 					|| packageName.matches("(com.android.(mms|contacts|calendar|email|phone)|com.google.android.*)")
 					|| recommendedPackages.contains(packageName)) {
 
-				if (packageName.equals(NOTIFICATION_BUZZER_PACKAGE)) {
+				if (packageName.equals(BUZZ_BUDDY_PACKAGE)) {
 					continue;
 				}
 				notificationApps.put(packageName, rInfo);

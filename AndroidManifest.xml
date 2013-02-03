@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.notificationbuzzer.fabuzaid21"
+    package="com.buzzbuddy.android"
     android:versionCode="1"
     android:versionName="1.0" >
 
@@ -14,13 +14,13 @@
     <uses-permission android:name="android.permission.READ_LOGS" />
 
     <application
-        android:name=".NotificationBuzzerApp"
+        android:name="com.buzzbuddy.android.BuzzBuddyApp"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="com.notificationbuzzer.fabuzaid21.NotificationBuzzerActivity"
+            android:name="com.buzzbuddy.android.BuzzBuddyActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait" >
             <intent-filter>
@@ -31,7 +31,7 @@
         </activity>
 
         <service
-            android:name=".NotificationDetectorService"
+            android:name="com.buzzbuddy.android.NotificationDetectorService"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE" >
             <intent-filter>
                 <action android:name="android.accessibilityservice.AccessibilityService" />
@@ -42,7 +42,7 @@
                 android:resource="@xml/accessibilityservice" />
         </service>
 
-        <receiver android:name=".PackageReceiver" >
+        <receiver android:name="com.buzzbuddy.android.PackageReceiver" >
             <intent-filter>
                 <action android:name="android.intent.action.PACKAGE_ADDED" />
                 <action android:name="android.intent.action.PACKAGE_REMOVED" />

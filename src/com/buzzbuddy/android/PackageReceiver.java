@@ -1,4 +1,4 @@
-package com.notificationbuzzer.fabuzaid21;
+package com.buzzbuddy.android;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -20,7 +20,7 @@ public class PackageReceiver extends BroadcastReceiver {
 			// if it's our own package, ignore it
 			return;
 		}
-		final NotificationBuzzerApp app = (NotificationBuzzerApp) context.getApplicationContext();
+		final BuzzBuddyApp app = (BuzzBuddyApp) context.getApplicationContext();
 
 		// check to make sure this is not happening because of an update
 		if (intent.getBooleanExtra(Intent.EXTRA_REPLACING, false) && !intent.getAction().equals(Intent.ACTION_PACKAGE_REPLACED)) {

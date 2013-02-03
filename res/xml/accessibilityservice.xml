@@ -6,4 +6,4 @@
     android:accessibilityFlags="flagDefault"
     android:description="@string/service_description"
     android:notificationTimeout="0"
-    android:settingsActivity=".NotificationBuzzerActivity" />
+    android:settingsActivity=".BuzzBuddyActivity" />

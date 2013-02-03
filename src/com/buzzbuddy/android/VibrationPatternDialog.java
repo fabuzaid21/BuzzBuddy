@@ -1,4 +1,4 @@
-package com.notificationbuzzer.fabuzaid21;
+package com.buzzbuddy.android;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -18,7 +18,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.notificationbuzzer.fabuzaid21.CountdownTimer.CountdownCallback;
+import com.buzzbuddy.android.R;
+import com.buzzbuddy.android.CountdownTimer.CountdownCallback;
 
 public class VibrationPatternDialog extends Dialog implements OnClickListener, CountdownCallback {
 
@@ -49,7 +50,7 @@ public class VibrationPatternDialog extends Dialog implements OnClickListener, C
 	public VibrationPatternDialog(final Context context, final int theme) {
 		super(context, theme);
 		Log.d(TAG, "constructor");
-		drawableManager = ((NotificationBuzzerApp) context.getApplicationContext()).getDrawableManager();
+		drawableManager = ((BuzzBuddyApp) context.getApplicationContext()).getDrawableManager();
 		res = context.getResources();
 		packageManager = context.getPackageManager();
 		generalInstructions = res.getString(R.string.vibration_pattern_explanation);
