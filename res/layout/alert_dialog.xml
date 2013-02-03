@@ -36,7 +36,7 @@
         android:paddingRight="15dp"
         android:paddingTop="10dp"
         android:textColor="#111111"
-        android:text="@string/activate_accessability_settings"
+        android:text="@string/activate_accessibility_settings"
         android:textSize="19sp" />
     
     <View

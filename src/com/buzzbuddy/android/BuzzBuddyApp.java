@@ -28,6 +28,7 @@ import android.util.Log;
 		"dalvikvm:S" })
 public class BuzzBuddyApp extends Application implements Comparator<ResolveInfo> {
 
+	private static final String SYSTEM_PACKAGE_REGEX = "(com.android.(mms|contacts|calendar|email|phone)|com.google.android.*)";
 	private static final String BUZZ_BUDDY_PACKAGE = BuzzBuddyApp.class.getPackage().getName();
 	private static final String INSTALL_SHORTCUT_INTENT = "com.android.launcher.action.INSTALL_SHORTCUT";
 	private static final String HOME_SCREEN_ACTIVITY = BuzzBuddyActivity.class.getSimpleName();
@@ -79,7 +80,7 @@ public class BuzzBuddyApp extends Application implements Comparator<ResolveInfo>
 		@Override
 		public void run() {
 			if (packageToDelete != null) {
-				Log.d(TAG, "deleting package " + packageToDelete + " from database, since app was just deleted");
+				Log.i(TAG, "deleting package " + packageToDelete + " from database, since app was just deleted");
 				base.deleteByPackageName(packageToDelete);
 			}
 			unassignedApps = assignedApps = recommendedApps = null;
@@ -90,10 +91,12 @@ public class BuzzBuddyApp extends Application implements Comparator<ResolveInfo>
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		Log.d(TAG, "onCreate");
+		if (BuildConfig.DEBUG) {
+			Log.d(TAG, "onCreate");
+		}
 		ACRA.init(this);
 		if (isFirstRun()) {
-			Log.d(TAG, "first Run");
+			Log.i(TAG, "first Run");
 			addShortcutToHomeScreen();
 		}
 		drawableManager = new DrawableManager(getPackageManager());
@@ -146,7 +149,9 @@ public class BuzzBuddyApp extends Application implements Comparator<ResolveInfo>
 
 	public List<ResolveInfo> getUnassignedApps() {
 		if (unassignedApps == null) {
-			Log.d(TAG, "unassignedApps is null");
+			if (BuildConfig.DEBUG) {
+				Log.i(TAG, "unassignedApps is null");
+			}
 			getAppsFromPhone();
 		}
 		return unassignedApps;
@@ -154,7 +159,9 @@ public class BuzzBuddyApp extends Application implements Comparator<ResolveInfo>
 
 	public List<ResolveInfo> getAssignedApps() {
 		if (assignedApps == null) {
-			Log.d(TAG, "assignedApps is null");
+			if (BuildConfig.DEBUG) {
+				Log.i(TAG, "assignedApps is null");
+			}
 			getAppsFromPhone();
 		}
 		return assignedApps;
@@ -162,19 +169,23 @@ public class BuzzBuddyApp extends Application implements Comparator<ResolveInfo>
 
 	public List<ResolveInfo> getRecommendedApps() {
 		if (recommendedApps == null) {
-			Log.d(TAG, "recommendeApps is null");
+			if (BuildConfig.DEBUG) {
+				Log.i(TAG, "recommendedApps is null");
+			}
 			getAppsFromPhone();
 		}
 		return recommendedApps;
 	}
 
 	private synchronized void getAppsFromPhone() {
-		Log.d(TAG, "entering getAppsFromPhone, thread id = " + Thread.currentThread().getId());
+		if (BuildConfig.DEBUG) {
+			Log.d(TAG, "entering getAppsFromPhone, thread id = " + Thread.currentThread().getId());
+		}
 		if (unassignedApps != null || recommendedApps != null || assignedApps != null) {
-			Log.d(TAG, "we already have the data, let's exit");
+			Log.i(TAG, "we already have the data, let's exit");
 			return;
 		}
-		Log.d(TAG, "do not have data, not exiting getAppsFromPhone");
+		Log.i(TAG, "do not have data, not exiting getAppsFromPhone");
 		final PackageManager pm = getPackageManager();
 
 		final Intent intent = new Intent(Intent.ACTION_MAIN, null);
@@ -196,7 +207,7 @@ public class BuzzBuddyApp extends Application implements Comparator<ResolveInfo>
 		baseApps.moveToFirst();
 		while (!baseApps.isAfterLast()) {
 			final String packageName = baseApps.getString(BuzzDB.APP_INDEX_NAME);
-			Log.d(TAG,
+			Log.i(TAG,
 					"first column = " + packageName + ", second column = "
 							+ baseApps.getString(BuzzDB.APP_INDEX_VIBRATION));
 			assignedApps.add(allApps.remove(packageName));
@@ -226,7 +237,7 @@ public class BuzzBuddyApp extends Application implements Comparator<ResolveInfo>
 
 			final String packageName = rInfo.activityInfo.applicationInfo.packageName;
 			if ((rInfo.activityInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 1
-					|| packageName.matches("(com.android.(mms|contacts|calendar|email|phone)|com.google.android.*)")
+					|| packageName.matches(SYSTEM_PACKAGE_REGEX)
 					|| recommendedPackages.contains(packageName)) {
 
 				if (packageName.equals(BUZZ_BUDDY_PACKAGE)) {
@@ -252,7 +263,7 @@ public class BuzzBuddyApp extends Application implements Comparator<ResolveInfo>
 	}
 
 	private void addShortcutToHomeScreen() {
-		Log.d(TAG, "creating Shortcut!");
+		Log.i(TAG, "creating Shortcut!");
 		final Intent shortcutIntent = new Intent();
 		shortcutIntent.setComponent(new ComponentName(getPackageName(), "." + HOME_SCREEN_ACTIVITY));
 

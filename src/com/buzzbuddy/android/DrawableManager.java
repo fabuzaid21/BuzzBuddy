@@ -15,7 +15,7 @@ public class DrawableManager {
 
 	private final LruCache<String, Drawable> drawableCache;
 	private final PackageManager packageManager;
-	private static final int CACHE_SIZE = 90;
+	private static final int CACHE_SIZE = 100;
 
 	public DrawableManager(final PackageManager pm) {
 		packageManager = pm;
@@ -26,10 +26,14 @@ public class DrawableManager {
 		synchronized (drawableCache) {
 			final Drawable drawable = drawableCache.get(packageName);
 			if (drawable != null) {
-				Log.d(TAG, packageName + " found drawable");
+				if (BuildConfig.DEBUG) {
+					Log.d(TAG, "FOUND " + packageName);
+				}
 				return drawable;
 			}
-			Log.d(TAG, packageName + " drawable was not found");
+			if (BuildConfig.DEBUG) {
+				Log.d(TAG, packageName + " NOT found");
+			}
 			final ApplicationInfo applicationInfo = rInfo.activityInfo.applicationInfo;
 			final Drawable icon = applicationInfo.loadIcon(packageManager);
 			drawableCache.put(applicationInfo.packageName, icon);

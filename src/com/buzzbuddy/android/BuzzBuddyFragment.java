@@ -86,7 +86,9 @@ public class BuzzBuddyFragment extends SherlockListFragment implements OnItemCli
 	@Override
 	public void onCreateOptionsMenu(final Menu menu, final MenuInflater inflater) {
 		inflater.inflate(R.menu.menu_buzz_buddy, menu);
-		Log.d(TAG, "onCreateOptionsMenu");
+		if (BuildConfig.DEBUG) {
+			Log.d(TAG, "onCreateOptionsMenu");
+		}
 	}
 
 	@Override
@@ -101,7 +103,7 @@ public class BuzzBuddyFragment extends SherlockListFragment implements OnItemCli
 			hideMenu();
 			final Vibrator vibrator = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);
 			vibrator.cancel();
-			adapter.enabledPlaybackButtons();
+			adapter.enablePlaybackButtons();
 			deleteSelections();
 			return true;
 		default:
@@ -169,7 +171,9 @@ public class BuzzBuddyFragment extends SherlockListFragment implements OnItemCli
 
 	@Override
 	public void onDestroy() {
-		Log.d(TAG, "onDestroy");
+		if (BuildConfig.DEBUG) {
+			Log.d(TAG, "onDestroy");
+		}
 		super.onDestroy();
 	}
 
@@ -211,7 +215,7 @@ public class BuzzBuddyFragment extends SherlockListFragment implements OnItemCli
 			accessibilityEnabled = Settings.Secure.getInt(getActivity().getContentResolver(),
 					android.provider.Settings.Secure.ACCESSIBILITY_ENABLED);
 		} catch (final SettingNotFoundException e) {
-			Log.d(TAG, "Error finding setting, default accessibility to not found: " + e.getMessage());
+			Log.e(TAG, "Error finding setting, default accessibility to not found: " + e.getMessage());
 		}
 
 		if (accessibilityEnabled == 0) {
@@ -239,8 +243,8 @@ public class BuzzBuddyFragment extends SherlockListFragment implements OnItemCli
 		vibrator.cancel();
 		hideMenu();
 		clearChecks();
-		adapter.enabledPlaybackButtons();
-		Log.d(TAG, "postion = " + position);
+		adapter.enablePlaybackButtons();
+		Log.i(TAG, "onItemClick, postion = " + position);
 		listPosition = position;
 		if (vibrationPatternDialog == null) {
 			vibrationPatternDialog = new VibrationPatternDialog(getActivity(), R.style.VibrationPatternDialogStyle);
@@ -257,7 +261,6 @@ public class BuzzBuddyFragment extends SherlockListFragment implements OnItemCli
 	@Override
 	public void onDismiss(final DialogInterface dialog) {
 		if (!isCanceled) {
-			Log.d(TAG, "onDismiss");
 			final Long[] finalPattern = vibrationPattern.getFinalizedPattern();
 			if (finalPattern == null) {
 				return;
@@ -266,8 +269,8 @@ public class BuzzBuddyFragment extends SherlockListFragment implements OnItemCli
 			final String patternString = serializePattern(finalPattern);
 			final String appName = getAppNameForPosition(listPosition);
 
-			Log.d(TAG, "patternString = " + patternString);
-			Log.d(TAG, "appName = " + appName);
+			Log.i(TAG, "patternString = " + patternString);
+			Log.i(TAG, "appName = " + appName);
 			values.put(BuzzDB.APP_KEY_NAME, appName);
 			values.put(BuzzDB.APP_KEY_VIBRATION, patternString);
 			values.put(BuzzDB.APP_KEY_DATE, Calendar.getInstance().getTimeInMillis());
@@ -348,7 +351,7 @@ public class BuzzBuddyFragment extends SherlockListFragment implements OnItemCli
 
 	@Override
 	public void onCancel(final DialogInterface dialog) {
-		Log.d(TAG, "onCancel");
+		Log.i(TAG, "dialog canceled");
 		isCanceled = true;
 	}
 
@@ -365,13 +368,15 @@ public class BuzzBuddyFragment extends SherlockListFragment implements OnItemCli
 	@Override
 	public void onClick(final View v) {
 		if (v.isSelected()) {
-			Log.d(TAG, "stop playback clicked, position = " + v.getTag());
+			// stop button showing
+			Log.i(TAG, "stop playback clicked, position = " + v.getTag());
 			final Vibrator vibrator = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);
 			vibrator.cancel();
-			adapter.enabledPlaybackButtons();
+			adapter.enablePlaybackButtons();
 			return;
 		}
-		Log.d(TAG, "playback clicked, position = " + v.getTag());
+		// play button showing
+		Log.i(TAG, "playback clicked, position = " + v.getTag());
 
 		final Vibrator vibrator = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);
 
@@ -387,8 +392,7 @@ public class BuzzBuddyFragment extends SherlockListFragment implements OnItemCli
 			patternString = entry.getString(BuzzDB.APP_INDEX_VIBRATION);
 		}
 
-		final long[] vibrationPattern = NotificationDetectorService.deserializePattern(patternString);
-		Log.d(TAG, "playing vibration pattern!");
+		final long[] vibrationPattern = VibrationPatternUtils.deserializePattern(patternString);
 		final long delay = totalPatternTime(vibrationPattern);
 		adapter.disableOtherPlaybackButtonsForTime(index, delay);
 		vibrator.vibrate(vibrationPattern, -1);
@@ -407,13 +411,13 @@ public class BuzzBuddyFragment extends SherlockListFragment implements OnItemCli
 	public void onCheckedChanged(final CompoundButton buttonView, final boolean isChecked) {
 		final Set<Integer> checked = adapter.getCheckedItems();
 		if (isChecked) {
-			Log.d(TAG, "checkbox checked, position = " + buttonView.getTag());
+			Log.i(TAG, "checkbox checked, position = " + buttonView.getTag());
 			if (checked.size() == 0) {
 				setMenuVisibility(true);
 			}
 			checked.add((Integer) buttonView.getTag());
 		} else {
-			Log.d(TAG, "checkbox unchecked, position = " + buttonView.getTag());
+			Log.i(TAG, "checkbox unchecked, position = " + buttonView.getTag());
 			if (checked.size() == 1) {
 				if (!forceClear) {
 					setMenuVisibility(false);

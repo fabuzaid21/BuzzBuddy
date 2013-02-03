@@ -17,7 +17,9 @@ public class CountdownTimer {
 		@Override
 		public boolean handleMessage(final Message msg) {
 			--mTime;
-			Log.d(TAG, "Time remaining: " + mTime + " seconds");
+			if (BuildConfig.DEBUG) {
+				Log.d(TAG, "Time remaining: " + mTime + " seconds");
+			}
 			if (mDelegate != null) {
 				mDelegate.onDecrement(mTime);
 			}

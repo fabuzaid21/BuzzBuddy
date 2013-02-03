@@ -22,7 +22,7 @@ public class EasyTargetCheckBox extends CheckBox {
 		try {
 			outRect.set(0, 0, getRight(), ((View) getParent()).getHeight());
 		} catch (final Exception e) {
-			Log.d(TAG, "parent not a view or null");
+			Log.e(TAG, "parent not a view or null");
 		}
 
 	}

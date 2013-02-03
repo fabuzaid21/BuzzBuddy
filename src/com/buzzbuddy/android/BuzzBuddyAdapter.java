@@ -19,7 +19,6 @@ import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.buzzbuddy.android.R;
 import com.emilsjolander.components.stickylistheaders.StickyListHeadersAdapter;
 
 public class BuzzBuddyAdapter extends BaseAdapter implements StickyListHeadersAdapter {
@@ -222,7 +221,7 @@ public class BuzzBuddyAdapter extends BaseAdapter implements StickyListHeadersAd
 		}
 	}
 
-	public void enabledPlaybackButtons() {
+	public void enablePlaybackButtons() {
 		for (int i = 0; i < playbackViews.size(); ++i) {
 			final ImageView currentButton = playbackViews.get(i);
 			if (currentButton == null) {

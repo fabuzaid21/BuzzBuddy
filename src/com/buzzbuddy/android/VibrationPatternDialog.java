@@ -49,7 +49,9 @@ public class VibrationPatternDialog extends Dialog implements OnClickListener, C
 
 	public VibrationPatternDialog(final Context context, final int theme) {
 		super(context, theme);
-		Log.d(TAG, "constructor");
+		if (BuildConfig.DEBUG) {
+			Log.d(TAG, "constructor");
+		}
 		drawableManager = ((BuzzBuddyApp) context.getApplicationContext()).getDrawableManager();
 		res = context.getResources();
 		packageManager = context.getPackageManager();
@@ -63,7 +65,9 @@ public class VibrationPatternDialog extends Dialog implements OnClickListener, C
 	@Override
 	protected void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		Log.d(TAG, "onCreate");
+		if (BuildConfig.DEBUG) {
+			Log.d(TAG, "onCreate");
+		}
 		setContentView(R.layout.vibration_pattern);
 		final ImageButton cancel = (ImageButton) findViewById(R.id.cancel);
 		accept = (ImageButton) findViewById(R.id.accept);
@@ -83,7 +87,9 @@ public class VibrationPatternDialog extends Dialog implements OnClickListener, C
 	@Override
 	protected void onStart() {
 		super.onStart();
-		Log.d(TAG, "onStart");
+		if (BuildConfig.DEBUG) {
+			Log.d(TAG, "onStart");
+		}
 		final ApplicationInfo applicationInfo = currentApp.activityInfo.applicationInfo;
 		titleText.setText(applicationInfo.loadLabel(packageManager));
 		titleIcon.setImageDrawable(drawableManager.fetchDrawable(applicationInfo.packageName, currentApp));
@@ -106,7 +112,9 @@ public class VibrationPatternDialog extends Dialog implements OnClickListener, C
 		super.onStop();
 		isRecording = false;
 		timer.stop();
-		Log.d(TAG, "onStop");
+		if (BuildConfig.DEBUG) {
+			Log.d(TAG, "onStop");
+		}
 	}
 
 	private void setAcceptButtonEnabled(final boolean isEnabled) {
@@ -122,16 +130,16 @@ public class VibrationPatternDialog extends Dialog implements OnClickListener, C
 	public void onClick(final View v) {
 		switch (v.getId()) {
 		case R.id.cancel:
-			Log.w(TAG, "cancel clicked");
+			Log.i(TAG, "cancel clicked");
 			cancel();
 			break;
 		case R.id.accept:
-			Log.w(TAG, "accept clicked");
+			Log.i(TAG, "accept clicked");
 			dismiss();
 			break;
 		case R.id.record:
 			if (v.isSelected()) {
-				Log.w(TAG, "recording");
+				Log.i(TAG, "recording");
 				setRecordingMode();
 				record.setSelected(false);
 				timerText.setSelected(false);
@@ -153,10 +161,9 @@ public class VibrationPatternDialog extends Dialog implements OnClickListener, C
 	@Override
 	public boolean onTouchEvent(final MotionEvent e) {
 		if (isRecording) {
-			Log.d(TAG, "onTouchEvent");
 			switch (e.getAction()) {
 			case MotionEvent.ACTION_DOWN:
-				Log.d(TAG, "Action down");
+				Log.i(TAG, "Action down");
 				if (!timer.isRunning()) {
 					timer.start();
 				}
@@ -165,7 +172,7 @@ public class VibrationPatternDialog extends Dialog implements OnClickListener, C
 				return true;
 
 			case MotionEvent.ACTION_UP:
-				Log.d(TAG, "Action up");
+				Log.i(TAG, "Action up");
 				vibrator.cancel();
 				vibrationPattern.updateLastTouched();
 				return true;

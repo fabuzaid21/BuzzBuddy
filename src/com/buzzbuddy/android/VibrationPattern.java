@@ -1,6 +1,6 @@
 package com.buzzbuddy.android;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import android.util.Log;
@@ -13,7 +13,7 @@ public class VibrationPattern {
 	private final List<Long> vibrationPattern;
 
 	public VibrationPattern() {
-		vibrationPattern = new ArrayList<Long>();
+		vibrationPattern = new LinkedList<Long>();
 		lastTimeTouched = 0;
 	}
 
@@ -23,9 +23,11 @@ public class VibrationPattern {
 		}
 		final Long[] finalPattern = vibrationPattern.toArray(new Long[vibrationPattern.size()]);
 		finalPattern[0] = 0L;
-		Log.d(TAG, "printing out pattern");
-		for (final Long elem : finalPattern) {
-			Log.d(TAG, "" + elem);
+		if (BuildConfig.DEBUG) {
+			Log.d(TAG, "printing out pattern");
+			for (final Long elem : finalPattern) {
+				Log.d(TAG, "" + elem);
+			}
 		}
 		return finalPattern;
 	}
@@ -47,5 +49,4 @@ public class VibrationPattern {
 	public boolean isPatternPresent() {
 		return vibrationPattern.size() != 0;
 	}
-
 }

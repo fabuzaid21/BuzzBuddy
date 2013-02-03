@@ -65,12 +65,13 @@
 
     <ImageButton
         android:id="@+id/record"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:padding="5dp"
         android:scaleType="fitCenter"
         android:layout_above="@+id/timer"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="10dp"
+        android:layout_marginBottom="5dp"
         android:background="@drawable/item_background_holo_dark"
         android:contentDescription="@string/record"
         android:src="@drawable/record_or_stop" />

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Buzz\nBuddy</string>
-    <string name="service_description">Change the vibration pattern for your various notifications</string>
+    <string name="app_name">Buzz Buddy</string>
+    <string name="service_description">Buzz Buddy lets you set customized vibration patterns for your various notifications. Whenever a notification arrives to your phone, Buzz Buddy will play back the pattern that you have set for that particular application. We promise that we do not collect any passwords, credit card numbers, or any other personal information. If you have any questions, don\'t hesitate to contact us at buzzbuddyapp@gmail.com</string>
     <string name="vibration_pattern_explanation">Tap the record button to begin recording your vibration pattern.</string>
     <string name="vibration_pattern_tapping">Tap anywhere on the screen to record your pattern.</string>
-    <string name="activate_accessability_settings">You need to activate accessability settings to use Buzz Buddy.</string>
+    <string name="activate_accessibility_settings">You need to activate accessibility settings to use Buzz Buddy.</string>
     <string name="icon_image">Icon image</string>
     <string name="cancel">Cancel</string>
     <string name="accept">Accept</string>

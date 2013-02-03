@@ -13,8 +13,7 @@ public class PackageReceiver extends BroadcastReceiver {
 	@Override
 	public void onReceive(final Context context, final Intent intent) {
 		final String packageName = intent.getData().getEncodedSchemeSpecificPart();
-		Log.d(TAG, packageName);
-		Log.d(TAG, "Action: " + intent.getAction());
+		Log.i(TAG, "Action: " + intent.getAction());
 
 		if (packageName.equals(PACKAGE_NAME)) {
 			// if it's our own package, ignore it
@@ -27,14 +26,14 @@ public class PackageReceiver extends BroadcastReceiver {
 			Log.d(TAG, "app is being replaced (updated), not added");
 			return;
 		}
-		Log.d(TAG, "refreshing app list from PackageReceiver");
+		Log.d(TAG, "refreshing app list");
 		if (intent.getAction().equals(Intent.ACTION_PACKAGE_REMOVED)) {
 			// pass in package name so that it can be deleted from the
 			// database
-                        Log.d(TAG, "passing in package name to be removed from database");
+            Log.d(TAG, "passing in package name to be removed from database");
 			app.refreshAppList(intent.getData().getEncodedSchemeSpecificPart());
 		} else {
-                        Log.d(TAG, "passing in null, not deleting from database");
+            Log.d(TAG, "passing in null, not deleting from database");
 			app.refreshAppList(null);
 		}
 	}

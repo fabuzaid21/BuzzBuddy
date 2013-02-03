@@ -5,8 +5,6 @@ import android.os.StrictMode;
 import android.util.Log;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.buzzbuddy.android.BuildConfig;
-import com.buzzbuddy.android.R;
 
 public class BuzzBuddyActivity extends SherlockFragmentActivity {
 
@@ -21,7 +19,9 @@ public class BuzzBuddyActivity extends SherlockFragmentActivity {
 					.penaltyDeath().build());
 		}
 		super.onCreate(savedInstanceState);
-		Log.d(TAG, "onCreate");
+		if (BuildConfig.DEBUG) {
+			Log.d(TAG, "onCreate");
+		}
 		setContentView(R.layout.activity_buzz_buddy);
 
 		final BuzzBuddyFragment fragment = new BuzzBuddyFragment();

@@ -22,7 +22,7 @@ public class NotificationDetectorService extends AccessibilityService {
 	@SuppressWarnings("deprecation")
 	@Override
 	public void onAccessibilityEvent(final AccessibilityEvent event) {
-		Log.d(TAG, "onAccessibilityEvent");
+		Log.i(TAG, "onAccessibilityEvent");
 
 		if (audioManager.getRingerMode() == AudioManager.RINGER_MODE_SILENT) {
 			return;
@@ -32,16 +32,18 @@ public class NotificationDetectorService extends AccessibilityService {
 		audioManager.setVibrateSetting(AudioManager.VIBRATE_TYPE_NOTIFICATION, AudioManager.VIBRATE_SETTING_OFF);
 
 		String packageName = String.valueOf(event.getPackageName());
-		Log.d(TAG, packageName);
+		if (BuildConfig.DEBUG) {
+			Log.i(TAG, packageName);
+		}
 		if (event.getEventType() == AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED) {
 			Log.d(TAG, "Notification Event");
 			final Notification notification = (Notification) event.getParcelableData();
 			if (notification == null) {
-				Log.d(TAG, "notification is null");
+				Log.e(TAG, "notification is null");
 				return;
 			}
 			if ((notification.flags & Notification.FLAG_ONGOING_EVENT) != 0) {
-				Log.d(TAG, "ongoing event, do not play vibration pattern");
+				Log.i(TAG, "ongoing event, do not play vibration pattern");
 				return;
 			}
 
@@ -53,8 +55,8 @@ public class NotificationDetectorService extends AccessibilityService {
 			if (resultSet.getCount() > 0) {
 
 				final String patternString = resultSet.getString(BuzzDB.APP_INDEX_VIBRATION);
-				final long[] vibrationPattern = deserializePattern(patternString);
-				Log.d(TAG, "playing vibration pattern!");
+				final long[] vibrationPattern = VibrationPatternUtils.deserializePattern(patternString);
+				Log.i(TAG, "playing vibration pattern!");
 				vibrator.vibrate(vibrationPattern, -1);
 
 			}
@@ -63,18 +65,11 @@ public class NotificationDetectorService extends AccessibilityService {
 		}
 	}
 
-	static long[] deserializePattern(final String patternString) {
-		final String[] temp = patternString.split("-");
-		final long[] toReturn = new long[temp.length];
-		for (int i = 0; i < temp.length; ++i) {
-			toReturn[i] = Long.parseLong(temp[i]);
-		}
-		return toReturn;
-	}
-
 	@Override
 	protected void onServiceConnected() {
-		Log.d(TAG, "onServiceConnected");
+		if (BuildConfig.DEBUG) {
+			Log.d(TAG, "onServiceConnected");
+		}
 		vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 		audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
 		base = ((BuzzBuddyApp) getApplication()).getDatabase();
@@ -88,6 +83,6 @@ public class NotificationDetectorService extends AccessibilityService {
 
 	@Override
 	public void onInterrupt() {
-		Log.d(TAG, "onInterrupt");
+		Log.e(TAG, "onInterrupt");
 	}
 }
