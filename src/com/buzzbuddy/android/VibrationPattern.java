@@ -1,6 +1,6 @@
 package com.buzzbuddy.android;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import android.util.Log;
@@ -10,32 +10,60 @@ public class VibrationPattern {
 	private static final String TAG = VibrationPattern.class.getSimpleName();
 
 	private long lastTimeTouched;
-	private final List<Long> vibrationPattern;
+	private List<Long> vibrationPattern;
+
+	private long[] currentPattern;
 
 	public VibrationPattern() {
-		vibrationPattern = new ArrayList<Long>();
+		initialize();
+	}
+
+	public VibrationPattern(final long[] pattern) {
+		initialize();
+		currentPattern = pattern;
+	}
+
+	private void initialize() {
+		vibrationPattern = new LinkedList<Long>();
 		lastTimeTouched = 0;
 	}
 
-	public Long[] getFinalizedPattern() {
+	public long[] getFinalizedPattern() {
+		if (currentPattern != null && currentPattern.length > 0) {
+			return currentPattern;
+		}
 		if (vibrationPattern.size() == 0) {
 			return null;
 		}
-		final Long[] finalPattern = vibrationPattern.toArray(new Long[vibrationPattern.size()]);
-		finalPattern[0] = 0L;
-		Log.d(TAG, "printing out pattern");
-		for (final Long elem : finalPattern) {
-			Log.d(TAG, "" + elem);
+		currentPattern = listToArray();
+		// replace first elem with 0
+		currentPattern[0] = 0L;
+		if (BuildConfig.DEBUG) {
+			Log.i(TAG, "printing out pattern");
+			for (final Long elem : currentPattern) {
+				Log.i(TAG, "" + elem);
+			}
 		}
-		return finalPattern;
+		return currentPattern;
+	}
+
+	private long[] listToArray() {
+		final long[] toReturn = new long[vibrationPattern.size()];
+		for (int i = 0; i < vibrationPattern.size(); ++i) {
+			toReturn[i] = vibrationPattern.get(i);
+		}
+		return toReturn;
 	}
 
 	public void initializePattern() {
 		vibrationPattern.clear();
+		currentPattern = null;
 	}
 
 	public void updateLastTouched() {
-		Log.d(TAG, "updateLastTouched");
+		if (BuildConfig.DEBUG) {
+			Log.i(TAG, "updateLastTouched");
+		}
 		vibrationPattern.add(currentTime() - lastTimeTouched);
 		lastTimeTouched = currentTime();
 	}
@@ -45,7 +73,10 @@ public class VibrationPattern {
 	}
 
 	public boolean isPatternPresent() {
-		return vibrationPattern.size() != 0;
+		return (currentPattern != null && currentPattern.length > 0) || isNewPatternPresent();
 	}
 
+	public boolean isNewPatternPresent() {
+		return vibrationPattern.size() > 0;
+	}
 }

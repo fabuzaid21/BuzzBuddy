@@ -69,6 +69,10 @@ public class BuzzBuddyAdapter extends BaseAdapter implements StickyListHeadersAd
 		return position;
 	}
 
+	public boolean isItemAssigned(final int position) {
+		return position < assignedApps.size();
+	}
+
 	private static class ViewHolder {
 		CheckBox checkBox;
 		ImageView icon;

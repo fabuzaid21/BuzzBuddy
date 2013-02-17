@@ -18,7 +18,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.buzzbuddy.android.R;
 import com.buzzbuddy.android.CountdownTimer.CountdownCallback;
 
 public class VibrationPatternDialog extends Dialog implements OnClickListener, CountdownCallback {
@@ -46,6 +45,7 @@ public class VibrationPatternDialog extends Dialog implements OnClickListener, C
 	private ResolveInfo currentApp;
 	private final PackageManager packageManager;
 	private final DrawableManager drawableManager;
+	private ImageButton playback;
 
 	public VibrationPatternDialog(final Context context, final int theme) {
 		super(context, theme);
@@ -66,12 +66,14 @@ public class VibrationPatternDialog extends Dialog implements OnClickListener, C
 		Log.d(TAG, "onCreate");
 		setContentView(R.layout.vibration_pattern);
 		final ImageButton cancel = (ImageButton) findViewById(R.id.cancel);
+		playback = (ImageButton) findViewById(R.id.play_pattern);
 		accept = (ImageButton) findViewById(R.id.accept);
 		record = (ImageButton) findViewById(R.id.record);
 
 		cancel.setOnClickListener(this);
 		accept.setOnClickListener(this);
 		record.setOnClickListener(this);
+		playback.setOnClickListener(this);
 
 		instructions = (TextView) findViewById(R.id.vibration_instructions);
 		timerText = (TextView) findViewById(R.id.timer);
@@ -91,9 +93,11 @@ public class VibrationPatternDialog extends Dialog implements OnClickListener, C
 	}
 
 	private void setInitialMode() {
+		vibrator.cancel(); // stop any vibration (could be coming from playback)
 		instructions.setText(generalInstructions);
 		isRecording = false;
-		setAcceptButtonEnabled(vibrationPattern.isPatternPresent());
+		setPlaybackButtonEnabled(vibrationPattern.isPatternPresent());
+		setAcceptButtonEnabled(vibrationPattern.isNewPatternPresent());
 		record.setSelected(true);
 		timerText.setSelected(true);
 		timerText.setText(O_SECONDS_TEXT);
@@ -106,7 +110,14 @@ public class VibrationPatternDialog extends Dialog implements OnClickListener, C
 		super.onStop();
 		isRecording = false;
 		timer.stop();
-		Log.d(TAG, "onStop");
+		if (BuildConfig.DEBUG) {
+			Log.d(TAG, "onStop");
+		}
+	}
+
+	private void setPlaybackButtonEnabled(final boolean isEnabled) {
+		playback.setEnabled(isEnabled);
+		playback.setClickable(isEnabled);
 	}
 
 	private void setAcceptButtonEnabled(final boolean isEnabled) {
@@ -123,13 +134,16 @@ public class VibrationPatternDialog extends Dialog implements OnClickListener, C
 		switch (v.getId()) {
 		case R.id.cancel:
 			Log.w(TAG, "cancel clicked");
+			vibrator.cancel();
 			cancel();
 			break;
 		case R.id.accept:
 			Log.w(TAG, "accept clicked");
+			vibrator.cancel();
 			dismiss();
 			break;
 		case R.id.record:
+			// if record button is showing
 			if (v.isSelected()) {
 				Log.w(TAG, "recording");
 				setRecordingMode();
@@ -138,8 +152,18 @@ public class VibrationPatternDialog extends Dialog implements OnClickListener, C
 				vibrationPattern.initializePattern();
 				break;
 			}
+			// if stop button is showing
 			Log.w(TAG, "stopping");
+			playback.removeCallbacks(enablePlayback);
 			setInitialMode();
+			break;
+		case R.id.play_pattern:
+			final long[] pattern = vibrationPattern.getFinalizedPattern();
+			final long delay = VibrationPatternUtils.totalPatternTime(pattern);
+			setPlaybackButtonEnabled(false);
+			record.setSelected(false);
+			playback.postDelayed(enablePlayback, delay);
+			vibrator.vibrate(pattern, -1);
 			break;
 		}
 	}
@@ -147,6 +171,7 @@ public class VibrationPatternDialog extends Dialog implements OnClickListener, C
 	private void setRecordingMode() {
 		instructions.setText(recordingText);
 		setAcceptButtonEnabled(false);
+		setPlaybackButtonEnabled(false);
 		isRecording = true;
 	}
 
@@ -199,6 +224,14 @@ public class VibrationPatternDialog extends Dialog implements OnClickListener, C
 
 	public void setCurrentApp(final ResolveInfo currentItem) {
 		currentApp = currentItem;
-
 	}
+
+	private final Runnable enablePlayback = new Runnable() {
+
+		@Override
+		public void run() {
+			record.setSelected(true);
+			setPlaybackButtonEnabled(true);
+		}
+	};
 }

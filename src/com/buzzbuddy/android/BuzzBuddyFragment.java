@@ -101,7 +101,7 @@ public class BuzzBuddyFragment extends SherlockListFragment implements OnItemCli
 			hideMenu();
 			final Vibrator vibrator = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);
 			vibrator.cancel();
-			adapter.enabledPlaybackButtons();
+			adapter.enablePlaybackButtons();
 			deleteSelections();
 			return true;
 		default:
@@ -239,15 +239,21 @@ public class BuzzBuddyFragment extends SherlockListFragment implements OnItemCli
 		vibrator.cancel();
 		hideMenu();
 		clearChecks();
-		adapter.enabledPlaybackButtons();
-		Log.d(TAG, "postion = " + position);
+		adapter.enablePlaybackButtons();
+		Log.d(TAG, "onItemClick, postion = " + position);
 		listPosition = position;
 		if (vibrationPatternDialog == null) {
 			vibrationPatternDialog = new VibrationPatternDialog(getActivity(), R.style.VibrationPatternDialogStyle);
 			vibrationPatternDialog.setOnDismissListener(this);
 			vibrationPatternDialog.setOnCancelListener(this);
 		}
-		vibrationPattern = new VibrationPattern();
+		if (adapter.isItemAssigned(position)) {
+			final String appName = getAppNameForPosition(position);
+			final long[] pattern = getVibrationPattern(appName);
+			vibrationPattern = new VibrationPattern(pattern);
+		} else {
+			vibrationPattern = new VibrationPattern();
+		}
 		vibrationPatternDialog.setVibrationPattern(vibrationPattern);
 		vibrationPatternDialog.setCurrentApp((ResolveInfo) adapter.getItem(position));
 		isCanceled = false;
@@ -258,12 +264,12 @@ public class BuzzBuddyFragment extends SherlockListFragment implements OnItemCli
 	public void onDismiss(final DialogInterface dialog) {
 		if (!isCanceled) {
 			Log.d(TAG, "onDismiss");
-			final Long[] finalPattern = vibrationPattern.getFinalizedPattern();
+			final long[] finalPattern = vibrationPattern.getFinalizedPattern();
 			if (finalPattern == null) {
 				return;
 			}
 			final ContentValues values = new ContentValues();
-			final String patternString = serializePattern(finalPattern);
+			final String patternString = VibrationPatternUtils.serializePattern(finalPattern);
 			final String appName = getAppNameForPosition(listPosition);
 
 			Log.d(TAG, "patternString = " + patternString);
@@ -338,14 +344,6 @@ public class BuzzBuddyFragment extends SherlockListFragment implements OnItemCli
 		}
 	}
 
-	private static String serializePattern(final Long[] finalPattern) {
-		String toReturn = "" + finalPattern[0];
-		for (int i = 1; i < finalPattern.length; ++i) {
-			toReturn += "-" + finalPattern[i];
-		}
-		return toReturn;
-	}
-
 	@Override
 	public void onCancel(final DialogInterface dialog) {
 		Log.d(TAG, "onCancel");
@@ -368,7 +366,7 @@ public class BuzzBuddyFragment extends SherlockListFragment implements OnItemCli
 			Log.d(TAG, "stop playback clicked, position = " + v.getTag());
 			final Vibrator vibrator = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);
 			vibrator.cancel();
-			adapter.enabledPlaybackButtons();
+			adapter.enablePlaybackButtons();
 			return;
 		}
 		Log.d(TAG, "playback clicked, position = " + v.getTag());
@@ -377,30 +375,26 @@ public class BuzzBuddyFragment extends SherlockListFragment implements OnItemCli
 
 		final int index = (Integer) v.getTag();
 
-		String patternString = "0";
-
 		final ResolveInfo item = assignedApps.get(index);
 		final String pName = item.activityInfo.applicationInfo.packageName;
+		final long[] vibrationPattern = getVibrationPattern(pName);
+		Log.d(TAG, "playing vibration pattern!");
+		final long delay = VibrationPatternUtils.totalPatternTime(vibrationPattern);
+		adapter.disableOtherPlaybackButtonsForTime(index, delay);
+		vibrator.vibrate(vibrationPattern, -1);
+	}
+
+	private long[] getVibrationPattern(final String pName) {
+		String patternString = "0";
 		final Cursor entry = base.queryByPackageName(pName);
 		entry.moveToFirst();
 		if (entry.getCount() > 0) {
 			patternString = entry.getString(BuzzDB.APP_INDEX_VIBRATION);
 		}
-
-		final long[] vibrationPattern = NotificationDetectorService.deserializePattern(patternString);
-		Log.d(TAG, "playing vibration pattern!");
-		final long delay = totalPatternTime(vibrationPattern);
-		adapter.disableOtherPlaybackButtonsForTime(index, delay);
-		vibrator.vibrate(vibrationPattern, -1);
 		entry.close();
-	}
 
-	private static long totalPatternTime(final long[] pattern) {
-		long toReturn = 0;
-		for (final long elem : pattern) {
-			toReturn += elem;
-		}
-		return toReturn;
+		final long[] vibrationPattern = VibrationPatternUtils.deserializePattern(patternString);
+		return vibrationPattern;
 	}
 
 	@Override
@@ -425,6 +419,7 @@ public class BuzzBuddyFragment extends SherlockListFragment implements OnItemCli
 	}
 
 	private class GetListItemsTask extends AsyncTask<Void, Void, Void> {
+
 		@Override
 		protected Void doInBackground(final Void... unused) {
 			final BuzzBuddyApp app = (BuzzBuddyApp) BuzzBuddyFragment.this.getActivity().getApplication();
