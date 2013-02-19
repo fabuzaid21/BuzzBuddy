@@ -1,5 +1,6 @@
 package com.buzzbuddy.android;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.util.Log;
@@ -12,11 +13,9 @@ public class BuzzBuddyActivity extends SherlockFragmentActivity {
 
 	@Override
 	protected void onCreate(final Bundle savedInstanceState) {
-		if (BuildConfig.DEBUG) {
-			StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().detectDiskReads().detectDiskWrites()
-					.detectNetwork().penaltyLog().build());
-			StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder().detectLeakedSqlLiteObjects().penaltyLog()
-					.penaltyDeath().build());
+		if (BuildConfig.DEBUG && Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
+			StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().detectDiskReads().detectDiskWrites().detectNetwork().penaltyLog().build());
+			StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder().detectLeakedSqlLiteObjects().penaltyLog().penaltyDeath().build());
 		}
 		super.onCreate(savedInstanceState);
 		if (BuildConfig.DEBUG) {
